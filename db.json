@@ -6,7 +6,7 @@
       "description": "Délicieux poulet rôti aux herbes.",
       "allergens": ["Gluten"],
       "price": 12.5,
-      "image": "https://via.placeholder.com/150"
+      "image": "https://picsum.photos/200?random=1"
     },
     {
       "id": "2",
@@ -14,7 +14,39 @@
       "description": "Une salade fraîche et croquante.",
       "allergens": [],
       "price": 7.0,
-      "image": "https://via.placeholder.com/150"
+      "image": "https://picsum.photos/200?random=2"
+    },
+    {
+      "id": "3",
+      "name": "Burger Végétarien",
+      "description": "Burger à base de galette de légumes et sauce spéciale.",
+      "allergens": ["Gluten", "Soja"],
+      "price": 9.5,
+      "image": "https://picsum.photos/200?random=3"
+    },
+    {
+      "id": "4",
+      "name": "Pizza Margherita",
+      "description": "Pizza classique avec sauce tomate, mozzarella et basilic.",
+      "allergens": ["Gluten", "Lactose"],
+      "price": 10.0,
+      "image": "https://picsum.photos/200?random=4"
+    },
+    {
+      "id": "5",
+      "name": "Pâtes Carbonara",
+      "description": "Pâtes crémeuses avec lardons et parmesan.",
+      "allergens": ["Gluten", "Lactose"],
+      "price": 11.0,
+      "image": "https://picsum.photos/200?random=5"
+    },
+    {
+      "id": "6",
+      "name": "Tacos au Poulet",
+      "description": "Tacos garnis de poulet épicé, légumes frais et sauce au yaourt.",
+      "allergens": ["Gluten"],
+      "price": 8.0,
+      "image": "https://picsum.photos/200?random=6"
     }
   ]
 }
