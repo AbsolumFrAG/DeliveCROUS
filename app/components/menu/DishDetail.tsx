@@ -51,7 +51,7 @@ export default function DishDetail({ route }: DishDetailProps) {
       <Image source={{ uri: dish.image }} style={styles.image} />
       <View style={styles.content}>
         <Text style={styles.name}>{dish.name}</Text>
-        <Text style={styles.price}>{dish.price}</Text>
+        <Text style={styles.price}>{dish.price} €</Text>
         <Text style={styles.description}>{dish.description}</Text>
         <Text style={styles.allergens}>
           Allergènes: {dish.allergens.join(", ")}
