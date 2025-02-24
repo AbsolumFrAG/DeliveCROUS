@@ -1,0 +1,20 @@
+{
+  "dishes": [
+    {
+      "id": "1",
+      "name": "Poulet rôti",
+      "description": "Délicieux poulet rôti aux herbes.",
+      "allergens": ["Gluten"],
+      "price": 12.5,
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": "2",
+      "name": "Salade verte",
+      "description": "Une salade fraîche et croquante.",
+      "allergens": [],
+      "price": 7.0,
+      "image": "https://via.placeholder.com/150"
+    }
+  ]
+}
