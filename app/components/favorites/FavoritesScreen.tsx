@@ -1,12 +1,3 @@
-import useAuth from "@/app/context/AuthContext";
-import { RootStackParamList } from "@/app/navigation/AppNavigator";
-import {
-  addToFavorites,
-  checkIsFavorite,
-  fetchDishes,
-  removeFromFavorites,
-} from "@/app/services/api";
-import { Dish } from "@/app/types";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import * as Haptics from "expo-haptics";
@@ -16,101 +7,68 @@ import {
   Alert,
   FlatList,
   Image,
-  RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 
-type DishListNavigationProp = StackNavigationProp<
+import useAuth from "@/app/context/AuthContext";
+import { RootStackParamList } from "@/app/navigation/AppNavigator";
+import { getFavoritesByUserId, removeFromFavorites } from "@/app/services/api";
+import { Dish } from "@/app/types";
+
+type FavoritesNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "DishList"
+  "Favorites"
 >;
 
-export default function DishList() {
-  const [dishes, setDishes] = useState<Dish[]>([]);
-  const [favorites, setFavorites] = useState<string[]>([]);
+export default function FavoritesScreen() {
+  const [favorites, setFavorites] = useState<Dish[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const navigation = useNavigation<DishListNavigationProp>();
+  const navigation = useNavigation<FavoritesNavigationProp>();
   const { user } = useAuth();
 
-  const loadDishes = useCallback(async () => {
+  const loadFavorites = useCallback(async () => {
+    if (!user) return;
+
     setIsLoading(true);
     try {
-      const data = await fetchDishes();
-      setDishes(data);
-
-      // Charger les favoris de l'utilisateur si connecté
-      if (user) {
-        await loadFavoriteStatus(data);
-      }
+      const favoriteDishes = await getFavoritesByUserId(user.id);
+      setFavorites(favoriteDishes);
     } catch (error) {
-      console.error("Erreur lors du chargement des plats:", error);
-      Alert.alert("Erreur", "Impossible de charger les plats");
+      console.error("Erreur lors du chargement des favoris:", error);
+      Alert.alert("Erreur", "Impossible de charger vos plats favoris");
     } finally {
       setIsLoading(false);
       setRefreshing(false);
     }
   }, [user]);
 
-  const loadFavoriteStatus = async (dishesData: Dish[]) => {
-    if (!user) return;
-
-    try {
-      const favoriteIds: string[] = [];
-
-      // Pour chaque plat, vérifier s'il est en favori
-      const checkPromises = dishesData.map(async (dish) => {
-        const isFavorite = await checkIsFavorite(user.id, dish.id);
-        if (isFavorite) {
-          favoriteIds.push(dish.id);
-        }
-      });
-
-      await Promise.all(checkPromises);
-      setFavorites(favoriteIds);
-    } catch (error) {
-      console.error("Erreur lors du chargement des statuts de favoris:", error);
-    }
-  };
-
   useEffect(() => {
-    loadDishes();
-  }, [loadDishes]);
-
-  const toggleFavorite = async (id: string) => {
-    if (!user) {
-      Alert.alert(
-        "Connexion requise",
-        "Vous devez être connecté pour ajouter des favoris",
-        [{ text: "OK" }]
-      );
-      return;
-    }
-
-    try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-
-      const isFavorite = favorites.includes(id);
-
-      if (isFavorite) {
-        await removeFromFavorites(user.id, id);
-        setFavorites((prev) => prev.filter((fav) => fav !== id));
-      } else {
-        await addToFavorites(user.id, id);
-        setFavorites((prev) => [...prev, id]);
-      }
-    } catch (error) {
-      console.error("Erreur lors de la modification des favoris:", error);
-      Alert.alert("Erreur", "Impossible de modifier les favoris");
-    }
-  };
+    loadFavorites();
+  }, [loadFavorites]);
 
   const handleRefresh = () => {
     setRefreshing(true);
-    loadDishes();
+    loadFavorites();
+  };
+
+  const handleRemoveFavorite = async (dishId: string) => {
+    if (!user) return;
+
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      await removeFromFavorites(user.id, dishId);
+      // Mettre à jour la liste locale des favoris
+      setFavorites((currentFavorites) =>
+        currentFavorites.filter((dish) => dish.id !== dishId)
+      );
+    } catch (error) {
+      console.error("Erreur lors de la suppression du favori:", error);
+      Alert.alert("Erreur", "Impossible de supprimer ce plat des favoris");
+    }
   };
 
   const renderItem = ({ item }: { item: Dish }) => (
@@ -121,11 +79,9 @@ export default function DishList() {
       <Image source={{ uri: item.image }} style={styles.image} />
       <TouchableOpacity
         style={styles.favoriteButton}
-        onPress={() => toggleFavorite(item.id)}
+        onPress={() => handleRemoveFavorite(item.id)}
       >
-        <Text style={styles.favorite}>
-          {favorites.includes(item.id) ? "★" : "☆"}
-        </Text>
+        <Text style={styles.favorite}>★</Text>
       </TouchableOpacity>
       <View style={styles.info}>
         <View style={styles.header}>
@@ -141,24 +97,36 @@ export default function DishList() {
     </TouchableOpacity>
   );
 
+  const EmptyListComponent = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyText}>
+        Vous n'avez pas encore de plats favoris
+      </Text>
+      <TouchableOpacity
+        style={styles.exploreButton}
+        onPress={() => navigation.navigate("DishList")}
+      >
+        <Text style={styles.exploreButtonText}>Explorer le menu</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Mes Favoris</Text>
       {isLoading && !refreshing ? (
         <ActivityIndicator size="large" color="#0066CC" style={styles.loader} />
       ) : (
         <FlatList
-          data={dishes}
+          data={favorites}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           numColumns={2}
           columnWrapperStyle={styles.row}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              colors={["#0066CC"]}
-            />
-          }
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          contentContainerStyle={favorites.length === 0 ? { flex: 1 } : null}
+          ListEmptyComponent={EmptyListComponent}
         />
       )}
     </View>
@@ -169,6 +137,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+    textAlign: "center",
   },
   row: {
     justifyContent: "space-between",
@@ -195,12 +169,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 10,
     right: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
-    borderRadius: 15,
-    width: 30,
-    height: 30,
-    justifyContent: "center",
-    alignItems: "center",
   },
   favorite: {
     fontSize: 20,
@@ -234,5 +202,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#666",
+    marginBottom: 20,
+  },
+  exploreButton: {
+    backgroundColor: "#0066CC",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  exploreButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
   },
 });
