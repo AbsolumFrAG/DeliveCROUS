@@ -1,10 +1,19 @@
 {
+  "users": [
+    {
+      "id": "1",
+      "email": "test@example.com",
+      "password": "password123"
+    }
+  ],
   "dishes": [
     {
       "id": "1",
       "name": "Poulet rôti",
       "description": "Délicieux poulet rôti aux herbes.",
-      "allergens": ["Gluten"],
+      "allergens": [
+        "Gluten"
+      ],
       "price": 12.5,
       "image": "https://picsum.photos/200?random=1"
     },
@@ -13,14 +22,17 @@
       "name": "Salade verte",
       "description": "Une salade fraîche et croquante.",
       "allergens": [],
-      "price": 7.0,
+      "price": 7,
       "image": "https://picsum.photos/200?random=2"
     },
     {
       "id": "3",
       "name": "Burger Végétarien",
       "description": "Burger à base de galette de légumes et sauce spéciale.",
-      "allergens": ["Gluten", "Soja"],
+      "allergens": [
+        "Gluten",
+        "Soja"
+      ],
       "price": 9.5,
       "image": "https://picsum.photos/200?random=3"
     },
@@ -28,24 +40,32 @@
       "id": "4",
       "name": "Pizza Margherita",
       "description": "Pizza classique avec sauce tomate, mozzarella et basilic.",
-      "allergens": ["Gluten", "Lactose"],
-      "price": 10.0,
+      "allergens": [
+        "Gluten",
+        "Lactose"
+      ],
+      "price": 10,
       "image": "https://picsum.photos/200?random=4"
     },
     {
       "id": "5",
       "name": "Pâtes Carbonara",
       "description": "Pâtes crémeuses avec lardons et parmesan.",
-      "allergens": ["Gluten", "Lactose"],
-      "price": 11.0,
+      "allergens": [
+        "Gluten",
+        "Lactose"
+      ],
+      "price": 11,
       "image": "https://picsum.photos/200?random=5"
     },
     {
       "id": "6",
       "name": "Tacos au Poulet",
       "description": "Tacos garnis de poulet épicé, légumes frais et sauce au yaourt.",
-      "allergens": ["Gluten"],
-      "price": 8.0,
+      "allergens": [
+        "Gluten"
+      ],
+      "price": 8,
       "image": "https://picsum.photos/200?random=6"
     }
   ]
