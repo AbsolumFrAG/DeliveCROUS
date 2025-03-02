@@ -6,6 +6,18 @@
       "password": "password123"
     }
   ],
+  "favorites": [
+    {
+      "id": "2ed8",
+      "userId": "1",
+      "dishId": "2"
+    },
+    {
+      "id": "bb64",
+      "userId": "1",
+      "dishId": "4"
+    }
+  ],
   "dishes": [
     {
       "id": "1",

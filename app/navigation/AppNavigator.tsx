@@ -1,7 +1,9 @@
+import { FontAwesome } from "@expo/vector-icons";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import React from "react";
 import LoginScreen from "../components/auth-wizard/LoginScreen";
 import RegisterScreen from "../components/auth-wizard/RegisterScreen";
+import FavoritesScreen from "../components/favorites/FavoritesScreen";
 import DishDetail from "../components/menu/DishDetail";
 import DishList from "../components/menu/DishList";
 import OrderScreen from "../components/order/OrderScreen";
@@ -11,11 +13,61 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   DishList: undefined;
+  Favorites: undefined;
   DishDetail: { dishId: string };
   Order: { dishId: string };
+  MainTabs: undefined;
+};
+
+type TabParamList = {
+  Menu: undefined;
+  Favorites: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<TabParamList>();
+
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          if (route.name === "Menu") {
+            return <FontAwesome name="list" size={size} color={color} />;
+          } else if (route.name === "Favorites") {
+            return (
+              <FontAwesome
+                name={focused ? "star" : "star-o"}
+                size={size}
+                color={color}
+              />
+            );
+          }
+          return <FontAwesome name="home" size={size} color={color} />;
+        },
+        tabBarActiveTintColor: "#0066CC",
+        tabBarInactiveTintColor: "gray",
+      })}
+    >
+      <Tab.Screen
+        name="Menu"
+        component={DishList}
+        options={{
+          title: "Menu",
+          headerShown: false,
+        }}
+      />
+      <Tab.Screen
+        name="Favorites"
+        component={FavoritesScreen}
+        options={{
+          title: "Favoris",
+          headerShown: false,
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
 
 export default function AppNavigator() {
   const { user } = useAuth();
@@ -25,9 +77,9 @@ export default function AppNavigator() {
       {user ? (
         <>
           <Stack.Screen
-            name="DishList"
-            component={DishList}
-            options={{ title: "Menu principal" }}
+            name="MainTabs"
+            component={MainTabs}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="DishDetail"
