@@ -1,6 +1,6 @@
 import { RootStackParamList } from "@/app/navigation/AppNavigator";
 import { fetchDishById } from "@/app/services/api";
-import Dish from "@/app/types";
+import { Dish } from "@/app/types";
 import { Picker } from "@react-native-picker/picker";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";

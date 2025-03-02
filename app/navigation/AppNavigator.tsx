@@ -1,13 +1,15 @@
-import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import useAuth from "../context/AuthContext";
-import DishList from "../components/menu/DishList";
-import DishDetail from "../components/menu/DishDetail";
+import React from "react";
 import LoginScreen from "../components/auth-wizard/LoginScreen";
+import RegisterScreen from "../components/auth-wizard/RegisterScreen";
+import DishDetail from "../components/menu/DishDetail";
+import DishList from "../components/menu/DishList";
 import OrderScreen from "../components/order/OrderScreen";
+import useAuth from "../context/AuthContext";
 
 export type RootStackParamList = {
   Login: undefined;
+  Register: undefined;
   DishList: undefined;
   DishDetail: { dishId: string };
   Order: { dishId: string };
@@ -39,11 +41,18 @@ export default function AppNavigator() {
           />
         </>
       ) : (
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ title: "Connexion" }}
-        />
+        <>
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ title: "Connexion" }}
+          />
+          <Stack.Screen
+            name="Register"
+            component={RegisterScreen}
+            options={{ title: "Inscription" }}
+          />
+        </>
       )}
     </Stack.Navigator>
   );

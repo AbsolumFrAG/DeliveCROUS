@@ -14,28 +14,40 @@ import {
   View,
 } from "react-native";
 
-type LoginNavigationProp = StackNavigationProp<RootStackParamList, "Login">;
+type RegisterNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "Register"
+>;
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [formSubmitting, setFormSubmitting] = useState(false);
-  const { login, isLoading } = useAuth();
-  const navigation = useNavigation<LoginNavigationProp>();
+  const navigation = useNavigation<RegisterNavigationProp>();
+  const { register, isLoading } = useAuth();
 
-  async function handleLogin() {
-    if (!email || !password) {
-      Alert.alert("Erreur", "Veuillez saisir votre email et mot de passe");
+  async function handleRegister() {
+    if (!email || !password || !confirmPassword) {
+      Alert.alert("Erreur", "Tous les champs sont requis");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert("Erreur", "Les mots de passe ne correspondent pas");
       return;
     }
 
     setFormSubmitting(true);
     try {
-      await login(email, password);
+      await register(email, password);
+      Alert.alert("Succès", "Votre compte a été créé avec succès", [
+        { text: "OK", onPress: () => navigation.navigate("Login") },
+      ]);
     } catch (error: any) {
       Alert.alert(
         "Erreur",
-        error.message || "Une erreur est survenue lors de la connexion"
+        error.message || "Une erreur est survenue lors de l'inscription"
       );
     } finally {
       setFormSubmitting(false);
@@ -47,7 +59,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Connexion</Text>
+      <Text style={styles.title}>Créer un compte</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -65,21 +77,29 @@ export default function LoginScreen() {
         secureTextEntry
         editable={!showLoader}
       />
+      <TextInput
+        style={styles.input}
+        placeholder="Confirmer le mot de passe"
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+        secureTextEntry
+        editable={!showLoader}
+      />
+
       {showLoader ? (
         <ActivityIndicator size="large" color="#0066CC" style={styles.loader} />
       ) : (
-        <Button title="Se connecter" onPress={handleLogin} />
+        <Button title="S'inscrire" onPress={handleRegister} />
       )}
-      <View style={styles.registerContainer}>
-        <Text>Pas encore de compte? </Text>
+
+      <View style={styles.loginContainer}>
+        <Text>Déjà un compte? </Text>
         <TouchableOpacity
-          onPress={() => navigation.navigate("Register")}
+          onPress={() => navigation.navigate("Login")}
           disabled={showLoader}
         >
-          <Text
-            style={[styles.registerLink, showLoader && styles.disabledLink]}
-          >
-            S'inscrire
+          <Text style={[styles.loginLink, showLoader && styles.disabledLink]}>
+            Se connecter
           </Text>
         </TouchableOpacity>
       </View>
@@ -106,12 +126,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 4,
   },
-  registerContainer: {
+  loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 16,
   },
-  registerLink: {
+  loginLink: {
     color: "#0066CC",
     fontWeight: "bold",
   },
