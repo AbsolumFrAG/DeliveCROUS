@@ -13,10 +13,14 @@ import {
   View,
 } from "react-native";
 
+/**
+ * Props pour l'écran de détail d'un plat
+ */
 interface DishDetailProps {
   route: { params: { dishId: string } };
 }
 
+// Type pour la navigation spécifique à l'écran de détail
 type DishDetailNavigationProp = StackNavigationProp<
   RootStackParamList,
   "DishDetail"
@@ -28,6 +32,7 @@ export default function DishDetail({ route }: DishDetailProps) {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation<DishDetailNavigationProp>();
 
+  // Charge les détails du plat au montage du composant
   useEffect(() => {
     async function loadDish() {
       setIsLoading(true);
@@ -43,6 +48,7 @@ export default function DishDetail({ route }: DishDetailProps) {
     loadDish();
   }, [dishId]);
 
+  // Affichage conditionnel pendant le chargement ou si le plat n'est pas trouvé
   if (isLoading) return <Text>Chargement...</Text>;
   if (!dish) return <Text>Plat non trouvé</Text>;
 

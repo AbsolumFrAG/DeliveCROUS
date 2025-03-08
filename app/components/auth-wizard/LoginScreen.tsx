@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 
+// Type pour la navigation spécifique à l'écran de connexion
 type LoginNavigationProp = StackNavigationProp<RootStackParamList, "Login">;
 
 export default function LoginScreen() {
@@ -23,6 +24,10 @@ export default function LoginScreen() {
   const { login, isLoading } = useAuth();
   const navigation = useNavigation<LoginNavigationProp>();
 
+  /**
+   * Gère le processus de connexion
+   * Valide les entrées et affiche les erreurs appropriées
+   */
   async function handleLogin() {
     if (!email || !password) {
       Alert.alert("Erreur", "Veuillez saisir votre email et mot de passe");
@@ -42,7 +47,7 @@ export default function LoginScreen() {
     }
   }
 
-  // Utiliser soit l'état global de chargement, soit l'état local du formulaire
+  // État combiné pour afficher le loader pendant le chargement
   const showLoader = isLoading || formSubmitting;
 
   return (

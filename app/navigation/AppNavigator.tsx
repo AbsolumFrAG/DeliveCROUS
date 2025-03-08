@@ -11,6 +11,7 @@ import OrderHistory from "../components/order/OrderHistory";
 import OrderScreen from "../components/order/OrderScreen";
 import useAuth from "../context/AuthContext";
 
+// Types pour les paramètres des navigateurs
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -29,14 +30,19 @@ export type TabParamList = {
   OrderHistory: undefined;
 };
 
+// Initialisation des navigateurs
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
+/**
+ * Configuration de la navigation par onglets pour les utilisateurs authentifiés
+ */
 function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
+          // Configuration des icônes pour chaque onglet
           if (route.name === "Menu") {
             return <FontAwesome name="list" size={size} color={color} />;
           } else if (route.name === "Favorites") {
@@ -84,12 +90,17 @@ function MainTabs() {
   );
 }
 
+/**
+ * Navigateur principal de l'application avec gestion conditionnelle
+ * des écrans selon l'état d'authentification
+ */
 export default function AppNavigator() {
   const { user } = useAuth();
 
   return (
     <Stack.Navigator>
       {user ? (
+        // Écrans pour utilisateurs authentifiés
         <>
           <Stack.Screen
             name="MainTabs"
@@ -118,6 +129,7 @@ export default function AppNavigator() {
           />
         </>
       ) : (
+        // Écrans d'authentification pour utilisateurs non connectés
         <>
           <Stack.Screen
             name="Login"
