@@ -1,12 +1,18 @@
 import useAuth from "@/app/context/AuthContext";
 import { RootStackParamList } from "@/app/navigation/AppNavigator";
+import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import * as Haptics from "expo-haptics";
 import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Button,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -20,6 +26,7 @@ type LoginNavigationProp = StackNavigationProp<RootStackParamList, "Login">;
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const { login, isLoading } = useAuth();
   const navigation = useNavigation<LoginNavigationProp>();
@@ -29,6 +36,9 @@ export default function LoginScreen() {
    * Valide les entrées et affiche les erreurs appropriées
    */
   async function handleLogin() {
+    // Feedback haptique
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
     if (!email || !password) {
       Alert.alert("Erreur", "Veuillez saisir votre email et mot de passe");
       return;
@@ -51,79 +61,220 @@ export default function LoginScreen() {
   const showLoader = isLoading || formSubmitting;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Connexion</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        editable={!showLoader}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Mot de passe"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        editable={!showLoader}
-      />
-      {showLoader ? (
-        <ActivityIndicator size="large" color="#0066CC" style={styles.loader} />
-      ) : (
-        <Button title="Se connecter" onPress={handleLogin} />
-      )}
-      <View style={styles.registerContainer}>
-        <Text>Pas encore de compte? </Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Register")}
-          disabled={showLoader}
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 80}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
         >
-          <Text
-            style={[styles.registerLink, showLoader && styles.disabledLink]}
-          >
-            S'inscrire
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require("@/assets/images/icon.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.appName}>DeliveCROUS</Text>
+          </View>
+
+          <View style={styles.formContainer}>
+            <Text style={styles.title}>Connexion</Text>
+
+            <View style={styles.inputContainer}>
+              <FontAwesome
+                name="envelope"
+                size={18}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                editable={!showLoader}
+                placeholderTextColor="#999"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <FontAwesome
+                name="lock"
+                size={18}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[styles.input, styles.passwordInput]}
+                placeholder="Mot de passe"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                editable={!showLoader}
+                placeholderTextColor="#999"
+              />
+              <TouchableOpacity
+                style={styles.showPasswordButton}
+                onPress={() => setShowPassword(!showPassword)}
+                disabled={showLoader}
+              >
+                <FontAwesome
+                  name={showPassword ? "eye-slash" : "eye"}
+                  size={18}
+                  color="#666"
+                />
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.loginButton, showLoader && styles.disabledButton]}
+              onPress={handleLogin}
+              disabled={showLoader}
+              activeOpacity={0.8}
+            >
+              {showLoader ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.loginButtonText}>Se connecter</Text>
+              )}
+            </TouchableOpacity>
+
+            <View style={styles.registerContainer}>
+              <Text style={styles.registerText}>Pas encore de compte? </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  navigation.navigate("Register");
+                }}
+                disabled={showLoader}
+              >
+                <Text
+                  style={[
+                    styles.registerLink,
+                    showLoader && styles.disabledLink,
+                  ]}
+                >
+                  S'inscrire
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#f8f9fa",
+  },
   container: {
     flex: 1,
-    padding: 16,
-    justifyContent: "center",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
+    paddingBottom: 40,
+  },
+  logoContainer: {
+    alignItems: "center",
+    marginTop: 40,
+    marginBottom: 20,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    marginBottom: 10,
+  },
+  appName: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#0066CC",
+  },
+  formContainer: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    marginBottom: 40,
   },
   title: {
     fontSize: 24,
-    marginBottom: 16,
+    fontWeight: "bold",
+    marginBottom: 24,
     textAlign: "center",
+    color: "#333",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
+    borderRadius: 8,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+  },
+  inputIcon: {
+    padding: 12,
   },
   input: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 8,
-    borderRadius: 4,
+    flex: 1,
+    height: 48,
+    fontSize: 16,
+    color: "#333",
+  },
+  passwordInput: {
+    paddingRight: 40,
+  },
+  showPasswordButton: {
+    position: "absolute",
+    right: 12,
+    height: 48,
+    justifyContent: "center",
+  },
+  loginButton: {
+    backgroundColor: "#0066CC",
+    borderRadius: 8,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  loginButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  disabledButton: {
+    backgroundColor: "#A0C8E6",
   },
   registerContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 16,
+    marginTop: 8,
+  },
+  registerText: {
+    fontSize: 15,
+    color: "#666",
   },
   registerLink: {
+    fontSize: 15,
     color: "#0066CC",
     fontWeight: "bold",
   },
   disabledLink: {
     opacity: 0.5,
-  },
-  loader: {
-    marginVertical: 12,
   },
 });
