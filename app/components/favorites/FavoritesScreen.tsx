@@ -1,4 +1,8 @@
-import { useNavigation } from "@react-navigation/native";
+import useAuth from "@/app/context/AuthContext";
+import { RootStackParamList } from "@/app/navigation/AppNavigator";
+import { getFavoritesByUserId, removeFromFavorites } from "@/app/services/api";
+import { Dish } from "@/app/types";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useState } from "react";
@@ -13,15 +17,9 @@ import {
   View,
 } from "react-native";
 
-import useAuth from "@/app/context/AuthContext";
-import { RootStackParamList } from "@/app/navigation/AppNavigator";
-import { getFavoritesByUserId, removeFromFavorites } from "@/app/services/api";
-import { Dish } from "@/app/types";
-
-// Type pour la navigation spécifique à l'écran des favoris
 type FavoritesNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "Favorites"
+  "MainTabs"
 >;
 
 export default function FavoritesScreen() {
@@ -31,9 +29,6 @@ export default function FavoritesScreen() {
   const navigation = useNavigation<FavoritesNavigationProp>();
   const { user } = useAuth();
 
-  /**
-   * Charge les plats favoris de l'utilisateur
-   */
   const loadFavorites = useCallback(async () => {
     if (!user) return;
 
@@ -50,27 +45,22 @@ export default function FavoritesScreen() {
     }
   }, [user]);
 
-  // Charge les favoris au montage du composant
   useEffect(() => {
     loadFavorites();
   }, [loadFavorites]);
 
-  // Actualise la liste des favoris
   const handleRefresh = () => {
     setRefreshing(true);
     loadFavorites();
   };
 
-  /**
-   * Supprime un plat des favoris et met à jour la liste
-   */
   const handleRemoveFavorite = async (dishId: string) => {
     if (!user) return;
 
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       await removeFromFavorites(user.id, dishId);
-      // Mise à jour optimiste de la liste locale
+      // Mettre à jour la liste locale des favoris
       setFavorites((currentFavorites) =>
         currentFavorites.filter((dish) => dish.id !== dishId)
       );
@@ -80,9 +70,16 @@ export default function FavoritesScreen() {
     }
   };
 
-  /**
-   * Rendu d'un élément de la liste des favoris
-   */
+  const navigateToMenu = () => {
+    // Use CommonActions for complex navigation
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: "MainTabs",
+        params: { screen: "DishListTab" },
+      })
+    );
+  };
+
   const renderItem = ({ item }: { item: Dish }) => (
     <TouchableOpacity
       style={styles.card}
@@ -109,18 +106,12 @@ export default function FavoritesScreen() {
     </TouchableOpacity>
   );
 
-  /**
-   * Affichage lorsque la liste des favoris est vide
-   */
   const EmptyListComponent = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyText}>
         Vous n'avez pas encore de plats favoris
       </Text>
-      <TouchableOpacity
-        style={styles.exploreButton}
-        onPress={() => navigation.navigate("DishList")}
-      >
+      <TouchableOpacity style={styles.exploreButton} onPress={navigateToMenu}>
         <Text style={styles.exploreButtonText}>Explorer le menu</Text>
       </TouchableOpacity>
     </View>

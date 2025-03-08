@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "../components/auth-wizard/LoginScreen";
 import RegisterScreen from "../components/auth-wizard/RegisterScreen";
+import CartScreen from "../components/cart/CartScreen";
 import FavoritesScreen from "../components/favorites/FavoritesScreen";
 import DishDetail from "../components/menu/DishDetail";
 import DishList from "../components/menu/DishList";
@@ -10,42 +11,40 @@ import OrderDetail from "../components/order-detail/OrderDetail";
 import OrderHistory from "../components/order/OrderHistory";
 import OrderScreen from "../components/order/OrderScreen";
 import useAuth from "../context/AuthContext";
+import useCart from "../context/CartContext";
 
-// Types pour les paramètres des navigateurs
+// Define all routes at the root level
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  DishList: undefined;
-  Favorites: undefined;
+  MainTabs: { screen?: string }; // Allow passing a screen parameter to MainTabs
   DishDetail: { dishId: string };
-  Order: { dishId: string };
-  MainTabs: undefined;
-  OrderHistory: undefined;
+  Order: { dishId?: string; fromCart?: boolean };
   OrderDetail: { orderId: string };
+  Cart: undefined;
 };
 
+// Define tab routes separately
 export type TabParamList = {
-  Menu: undefined;
-  Favorites: undefined;
-  OrderHistory: undefined;
+  DishListTab: undefined;
+  FavoritesTab: undefined; // Renamed to avoid confusion
+  OrderHistoryTab: undefined; // Renamed to avoid confusion
+  CartTab: undefined;
 };
 
-// Initialisation des navigateurs
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
-/**
- * Configuration de la navigation par onglets pour les utilisateurs authentifiés
- */
 function MainTabs() {
+  const { totalItems } = useCart();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          // Configuration des icônes pour chaque onglet
-          if (route.name === "Menu") {
+          if (route.name === "DishListTab") {
             return <FontAwesome name="list" size={size} color={color} />;
-          } else if (route.name === "Favorites") {
+          } else if (route.name === "FavoritesTab") {
             return (
               <FontAwesome
                 name={focused ? "star" : "star-o"}
@@ -53,8 +52,12 @@ function MainTabs() {
                 color={color}
               />
             );
-          } else if (route.name === "OrderHistory") {
+          } else if (route.name === "OrderHistoryTab") {
             return <FontAwesome name="history" size={size} color={color} />;
+          } else if (route.name === "CartTab") {
+            return (
+              <FontAwesome name="shopping-cart" size={size} color={color} />
+            );
           }
           return <FontAwesome name="home" size={size} color={color} />;
         },
@@ -63,7 +66,7 @@ function MainTabs() {
       })}
     >
       <Tab.Screen
-        name="Menu"
+        name="DishListTab"
         component={DishList}
         options={{
           title: "Menu",
@@ -71,7 +74,7 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Favorites"
+        name="FavoritesTab"
         component={FavoritesScreen}
         options={{
           title: "Favoris",
@@ -79,28 +82,32 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="OrderHistory"
+        name="OrderHistoryTab"
         component={OrderHistory}
         options={{
           title: "Commandes",
           headerShown: false,
         }}
       />
+      <Tab.Screen
+        name="CartTab"
+        component={CartScreen}
+        options={{
+          title: "Panier",
+          headerShown: false,
+          tabBarBadge: totalItems > 0 ? totalItems : undefined,
+        }}
+      />
     </Tab.Navigator>
   );
 }
 
-/**
- * Navigateur principal de l'application avec gestion conditionnelle
- * des écrans selon l'état d'authentification
- */
 export default function AppNavigator() {
   const { user } = useAuth();
 
   return (
     <Stack.Navigator>
       {user ? (
-        // Écrans pour utilisateurs authentifiés
         <>
           <Stack.Screen
             name="MainTabs"
@@ -115,21 +122,20 @@ export default function AppNavigator() {
           <Stack.Screen
             name="Order"
             component={OrderScreen}
-            options={{ title: "Commander" }}
-          />
-          <Stack.Screen
-            name="OrderHistory"
-            component={OrderHistory}
-            options={{ title: "Historique des commandes" }}
+            options={{ title: "Commander", headerBackTitle: "Retour" }}
           />
           <Stack.Screen
             name="OrderDetail"
             component={OrderDetail}
             options={{ title: "Détail de la commande" }}
           />
+          <Stack.Screen
+            name="Cart"
+            component={CartScreen}
+            options={{ title: "Mon panier" }}
+          />
         </>
       ) : (
-        // Écrans d'authentification pour utilisateurs non connectés
         <>
           <Stack.Screen
             name="Login"
