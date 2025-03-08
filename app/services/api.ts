@@ -1,7 +1,7 @@
 import { Dish } from "../types";
 import { User } from "../context/AuthContext";
 
-const API_URL = "http://192.168.1.112:3000";
+const API_URL = "http://localhost:3000";
 
 // Interface pour les erreurs API
 interface ApiError extends Error {
@@ -24,6 +24,58 @@ export interface Favorite {
   userId: string;
   dishId: string;
 }
+export interface Order {
+  id: string;
+  userId: string;
+  dishes: Dish[]; 
+  totalAmount: number; 
+  status: string;
+  createdAt: string;
+  updatedAt: string; 
+}
+
+
+export async function createOrder(
+  userId: string,
+  dish: Dish, 
+  deliveryLocation: string
+): Promise<Order> {
+  try {
+    const totalAmount = dish.price;
+
+    const response = await fetch(`${API_URL}/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        dishes: [{ 
+          id: dish.id,
+          name: dish.name, 
+          description: dish.description, 
+          price: dish.price, 
+          image: dish.image 
+        }],
+        totalAmount,
+        status: "en cours",
+        deliveryLocation,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+    });
+
+    if (!response.ok) {
+      const error = new Error("Erreur lors de la création de la commande") as ApiError;
+      (error as ApiError).status = response.status;
+      throw error;
+    }
+
+    return await response.json(); 
+  } catch (error) {
+    console.error("Erreur lors de la commande :", error);
+    throw error;
+  }
+}
+
 
 // Fonctions liées aux plats
 export async function fetchDishes(): Promise<Dish[]> {
@@ -55,6 +107,7 @@ export async function fetchDishById(id: string): Promise<Dish | null> {
     return null;
   }
 }
+
 
 // Fonctions liées à l'authentification
 export async function loginUser(credentials: UserCredentials): Promise<User> {

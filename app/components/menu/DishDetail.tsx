@@ -1,6 +1,6 @@
 import { RootStackParamList } from "@/app/navigation/AppNavigator";
 import { fetchDishById } from "@/app/services/api";
-import Dish from "@/app/types";
+import { Dish } from "@/app/types";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useEffect, useState } from "react";

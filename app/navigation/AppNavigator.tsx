@@ -8,6 +8,8 @@ import DishDetail from "../components/menu/DishDetail";
 import DishList from "../components/menu/DishList";
 import OrderScreen from "../components/order/OrderScreen";
 import useAuth from "../context/AuthContext";
+import OrderHistory from "../components/order/OrderHistory";
+import { StackNavigationProp } from '@react-navigation/stack';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -17,15 +19,19 @@ export type RootStackParamList = {
   DishDetail: { dishId: string };
   Order: { dishId: string };
   MainTabs: undefined;
+  OrderHistory: undefined; 
 };
 
-type TabParamList = {
+export type TabParamList = {
   Menu: undefined;
   Favorites: undefined;
+  "OrderHsitory": undefined;  
 };
 
+type OrderScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Order'>;
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
+
 
 function MainTabs() {
   return (
@@ -65,6 +71,14 @@ function MainTabs() {
           headerShown: false,
         }}
       />
+      <Tab.Screen
+        name="OrderHsitory"
+        component={OrderHistory}
+        options={{
+          title: "Order Hsitory",
+          headerShown: false,
+        }}
+      />
     </Tab.Navigator>
   );
 }
@@ -90,6 +104,11 @@ export default function AppNavigator() {
             name="Order"
             component={OrderScreen}
             options={{ title: "Commander" }}
+          />
+          <Stack.Screen
+            name="OrderHistory"
+            component={OrderHistory}
+            options={{ title: "Order History" }}
           />
         </>
       ) : (
