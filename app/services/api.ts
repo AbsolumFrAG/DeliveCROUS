@@ -366,12 +366,17 @@ export async function checkIsFavorite(
 }
 
 /**
- * Récupère l'historique des commandes
- * @returns Liste des commandes
+ * Récupère l'historique des commandes d'un utilisateur spécifique
+ * @param userId Identifiant de l'utilisateur
+ * @returns Liste des commandes de l'utilisateur
  */
-export async function fetchOrderHistory(): Promise<Order[]> {
+export async function fetchOrderHistory(userId?: string): Promise<Order[]> {
   try {
-    const response = await fetch(`${API_URL}/orders`);
+    // Si un userId est fourni, on filtre les commandes par utilisateur
+    const endpoint = userId
+      ? `${API_URL}/orders?userId=${userId}`
+      : `${API_URL}/orders`;
+    const response = await fetch(endpoint);
 
     if (!response.ok) {
       const error = new Error("Erreur réseau") as ApiError;

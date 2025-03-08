@@ -1,3 +1,4 @@
+import useAuth from "@/app/context/AuthContext";
 import { RootStackParamList } from "@/app/navigation/AppNavigator";
 import { fetchOrderHistory, Order } from "@/app/services/api";
 import { CommonActions, useNavigation } from "@react-navigation/native";
@@ -26,11 +27,19 @@ const OrderHistory = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigation = useNavigation<OrderHistoryNavigationProp>();
+  const { user } = useAuth();
 
   const loadOrders = useCallback(async () => {
+    if (!user) {
+      setError("Utilisateur non connecté");
+      setIsLoading(false);
+      setRefreshing(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const data = await fetchOrderHistory();
+      const data = await fetchOrderHistory(user.id);
       setOrders(data);
       setError(null);
     } catch (error) {
@@ -40,7 +49,7 @@ const OrderHistory = () => {
       setIsLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     loadOrders();
@@ -52,7 +61,6 @@ const OrderHistory = () => {
   };
 
   const navigateToMenu = () => {
-    // Use CommonActions for complex navigation
     navigation.dispatch(
       CommonActions.navigate({
         name: "MainTabs",
@@ -139,7 +147,7 @@ const OrderHistory = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Historique des commandes</Text>
+      <Text style={styles.title}>Mes commandes</Text>
       {isLoading && !refreshing ? (
         <ActivityIndicator size="large" color="#0066CC" style={styles.loader} />
       ) : error ? (
@@ -179,7 +187,6 @@ const OrderHistory = () => {
 };
 
 const styles = StyleSheet.create({
-  // Styles inchangés - pour économiser de l'espace je ne les inclus pas tous ici
   container: {
     flex: 1,
     padding: 16,
