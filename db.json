@@ -150,5 +150,399 @@
       "createdAt": "2025-03-08T12:47:24.525Z",
       "updatedAt": "2025-03-08T12:47:24.525Z"
     }
+  ],
+  "universities": [
+    {
+      "id": "univ1",
+      "name": "Université Paris-Saclay"
+    },
+    {
+      "id": "univ2",
+      "name": "Sorbonne Université"
+    },
+    {
+      "id": "univ3",
+      "name": "Université de Lyon"
+    },
+    {
+      "id": "univ4",
+      "name": "Université de Bordeaux"
+    },
+    {
+      "id": "univ5",
+      "name": "Université de Lille"
+    },
+    {
+      "id": "univ6",
+      "name": "Université de Strasbourg"
+    },
+    {
+      "id": "univ7",
+      "name": "Université Grenoble Alpes"
+    },
+    {
+      "id": "univ8",
+      "name": "Université de Montpellier"
+    },
+    {
+      "id": "univ9",
+      "name": "Université de Nantes"
+    },
+    {
+      "id": "univ10",
+      "name": "Université de Toulouse"
+    },
+    {
+      "id": "univ11",
+      "name": "Université d'Aix-Marseille"
+    },
+    {
+      "id": "univ12",
+      "name": "Université Rennes 1"
+    },
+    {
+      "id": "univ13",
+      "name": "Université de Lorraine"
+    },
+    {
+      "id": "univ14",
+      "name": "Université de Rouen"
+    },
+    {
+      "id": "univ15",
+      "name": "Université de Reims"
+    },
+    {
+      "id": "univ16",
+      "name": "Université d'Orléans"
+    },
+    {
+      "id": "univ17",
+      "name": "Université de Caen"
+    },
+    {
+      "id": "univ18",
+      "name": "Université de Clermont-Ferrand"
+    },
+    {
+      "id": "univ19",
+      "name": "Université de Poitiers"
+    },
+    {
+      "id": "univ20",
+      "name": "Université de Versailles"
+    }
+  ],
+  "rooms": [
+    {
+      "id": "room1",
+      "name": "Salle TD1",
+      "universityId": "univ1"
+    },
+    {
+      "id": "room2",
+      "name": "Salle TD2",
+      "universityId": "univ1"
+    },
+    {
+      "id": "room3",
+      "name": "Salle TP1",
+      "universityId": "univ1"
+    },
+    {
+      "id": "room4",
+      "name": "Amphi A",
+      "universityId": "univ1"
+    },
+    {
+      "id": "room5",
+      "name": "Salle 101",
+      "universityId": "univ2"
+    },
+    {
+      "id": "room6",
+      "name": "Salle 102",
+      "universityId": "univ2"
+    },
+    {
+      "id": "room7",
+      "name": "Amphi Jussieu",
+      "universityId": "univ2"
+    },
+    {
+      "id": "room8",
+      "name": "Salle TP Bio",
+      "universityId": "univ2"
+    },
+    {
+      "id": "room9",
+      "name": "Salle A",
+      "universityId": "univ3"
+    },
+    {
+      "id": "room10",
+      "name": "Salle B",
+      "universityId": "univ3"
+    },
+    {
+      "id": "room11",
+      "name": "Labo Chimie",
+      "universityId": "univ3"
+    },
+    {
+      "id": "room12",
+      "name": "Amphi Sciences",
+      "universityId": "univ3"
+    },
+    {
+      "id": "room13",
+      "name": "Salle Informatique",
+      "universityId": "univ4"
+    },
+    {
+      "id": "room14",
+      "name": "Bibliothèque",
+      "universityId": "univ4"
+    },
+    {
+      "id": "room15",
+      "name": "Salle Physique",
+      "universityId": "univ4"
+    },
+    {
+      "id": "room16",
+      "name": "Salle TD3",
+      "universityId": "univ5"
+    },
+    {
+      "id": "room17",
+      "name": "Salle TP2",
+      "universityId": "univ5"
+    },
+    {
+      "id": "room18",
+      "name": "Amphi B",
+      "universityId": "univ5"
+    },
+    {
+      "id": "room19",
+      "name": "Salle Conférence",
+      "universityId": "univ6"
+    },
+    {
+      "id": "room20",
+      "name": "Labo Bio",
+      "universityId": "univ6"
+    },
+    {
+      "id": "room21",
+      "name": "Salle 201",
+      "universityId": "univ7"
+    },
+    {
+      "id": "room22",
+      "name": "Salle TP3",
+      "universityId": "univ7"
+    },
+    {
+      "id": "room23",
+      "name": "Amphi C",
+      "universityId": "univ7"
+    },
+    {
+      "id": "room24",
+      "name": "Salle TD4",
+      "universityId": "univ8"
+    },
+    {
+      "id": "room25",
+      "name": "Labo Physique",
+      "universityId": "univ8"
+    },
+    {
+      "id": "room26",
+      "name": "Amphi D",
+      "universityId": "univ8"
+    },
+    {
+      "id": "room27",
+      "name": "Salle de Réunion",
+      "universityId": "univ9"
+    },
+    {
+      "id": "room28",
+      "name": "Salle Informatique",
+      "universityId": "univ9"
+    },
+    {
+      "id": "room29",
+      "name": "Amphi E",
+      "universityId": "univ9"
+    },
+    {
+      "id": "room30",
+      "name": "Bibliothèque Centrale",
+      "universityId": "univ10"
+    },
+    {
+      "id": "room31",
+      "name": "Salle TP4",
+      "universityId": "univ10"
+    },
+    {
+      "id": "room32",
+      "name": "Amphi F",
+      "universityId": "univ10"
+    },
+    {
+      "id": "room33",
+      "name": "Salle TD5",
+      "universityId": "univ11"
+    },
+    {
+      "id": "room34",
+      "name": "Salle TP5",
+      "universityId": "univ11"
+    },
+    {
+      "id": "room35",
+      "name": "Amphi G",
+      "universityId": "univ11"
+    },
+    {
+      "id": "room36",
+      "name": "Salle 301",
+      "universityId": "univ12"
+    },
+    {
+      "id": "room37",
+      "name": "Salle TP6",
+      "universityId": "univ12"
+    },
+    {
+      "id": "room38",
+      "name": "Amphi H",
+      "universityId": "univ12"
+    },
+    {
+      "id": "room39",
+      "name": "Salle TD6",
+      "universityId": "univ13"
+    },
+    {
+      "id": "room40",
+      "name": "Salle TP7",
+      "universityId": "univ13"
+    },
+    {
+      "id": "room41",
+      "name": "Amphi I",
+      "universityId": "univ13"
+    },
+    {
+      "id": "room42",
+      "name": "Salle 401",
+      "universityId": "univ14"
+    },
+    {
+      "id": "room43",
+      "name": "Salle TP8",
+      "universityId": "univ14"
+    },
+    {
+      "id": "room44",
+      "name": "Amphi J",
+      "universityId": "univ14"
+    },
+    {
+      "id": "room45",
+      "name": "Salle TD7",
+      "universityId": "univ15"
+    },
+    {
+      "id": "room46",
+      "name": "Salle TP9",
+      "universityId": "univ15"
+    },
+    {
+      "id": "room47",
+      "name": "Amphi K",
+      "universityId": "univ15"
+    },
+    {
+      "id": "room48",
+      "name": "Salle 501",
+      "universityId": "univ16"
+    },
+    {
+      "id": "room49",
+      "name": "Salle TP10",
+      "universityId": "univ16"
+    },
+    {
+      "id": "room50",
+      "name": "Amphi L",
+      "universityId": "univ16"
+    },
+    {
+      "id": "room51",
+      "name": "Salle TD8",
+      "universityId": "univ17"
+    },
+    {
+      "id": "room52",
+      "name": "Salle TP11",
+      "universityId": "univ17"
+    },
+    {
+      "id": "room53",
+      "name": "Amphi M",
+      "universityId": "univ17"
+    },
+    {
+      "id": "room54",
+      "name": "Salle 601",
+      "universityId": "univ18"
+    },
+    {
+      "id": "room55",
+      "name": "Salle TP12",
+      "universityId": "univ18"
+    },
+    {
+      "id": "room56",
+      "name": "Amphi N",
+      "universityId": "univ18"
+    },
+    {
+      "id": "room57",
+      "name": "Salle TD9",
+      "universityId": "univ19"
+    },
+    {
+      "id": "room58",
+      "name": "Salle TP13",
+      "universityId": "univ19"
+    },
+    {
+      "id": "room59",
+      "name": "Amphi O",
+      "universityId": "univ19"
+    },
+    {
+      "id": "room60",
+      "name": "Salle 701",
+      "universityId": "univ20"
+    },
+    {
+      "id": "room61",
+      "name": "Salle TP14",
+      "universityId": "univ20"
+    },
+    {
+      "id": "room62",
+      "name": "Amphi P",
+      "universityId": "univ20"
+    }
   ]
 }
