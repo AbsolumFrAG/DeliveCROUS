@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
 import { ActivityIndicator, Alert, StyleSheet, Text, View, ScrollView, TouchableOpacity, Modal} from "react-native";
+import useAuth from "@/app/context/AuthContext";
 
 /**
  * Types pour la navigation et les routes
@@ -21,6 +22,7 @@ export default function OrderScreen() {
   const navigation = useNavigation<OrderScreenNavigationProp>(); 
   const route = useRoute<OrderScreenRouteProp>();
   const { dishId } = route.params; 
+  const { user } = useAuth();
 
   // États pour gérer les données et les sélections
   const [dish, setDish] = useState<Dish | null>(null);
@@ -29,7 +31,6 @@ export default function OrderScreen() {
   const [selectedRoom, setSelectedRoom] = useState<string>("");
   const [selectedRoomName, setSelectedRoomName] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [userId, setUserId] = useState<string | null>("1234");
   const [universityModalVisible, setUniversityModalVisible] = useState(false);
   const [roomModalVisible, setRoomModalVisible] = useState(false);
   const [universities, setUniversities] = useState<University[]>([]);
@@ -88,6 +89,12 @@ export default function OrderScreen() {
    * Gère la validation de la commande
    */
   async function handleOrder() {
+    // Vérifier que l'utilisateur est connecté
+    if (!user) {
+      Alert.alert("Erreur", "Vous devez être connecté pour passer une commande.");
+      return;
+    }
+
     if (!selectedUniversity || !selectedRoom) {
       Alert.alert("Erreur", "Veuillez sélectionner une université et une salle de livraison.");
       return;
@@ -96,15 +103,11 @@ export default function OrderScreen() {
       Alert.alert("Erreur", "Le plat sélectionné est introuvable.");
       return;
     }
-    if (!userId) {
-      Alert.alert("Erreur", "Utilisateur non identifié.");
-      return;
-    }
     
     try {
       setIsLoading(true);
       const deliveryLocation = `${selectedUniversityName} - ${selectedRoomName}`;
-      const order = await createOrder(userId, dish, deliveryLocation);
+      const order = await createOrder(user.id, dish, deliveryLocation);
       Alert.alert("Commande réussie", `Votre commande pour ${dish.name} sera livrée à ${deliveryLocation}.`);
       navigation.navigate("OrderHistory");
     } catch (error) {
@@ -131,6 +134,21 @@ export default function OrderScreen() {
 
   if (isLoading) {
     return <ActivityIndicator style={styles.loader} />;
+  }
+
+  // Vérifier que l'utilisateur est connecté avant d'afficher l'écran de commande
+  if (!user) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Vous devez être connecté pour passer une commande.</Text>
+        <TouchableOpacity 
+          style={styles.loginButton}
+          onPress={() => navigation.navigate("Login")}
+        >
+          <Text style={styles.loginButtonText}>Se connecter</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
 
   return (
@@ -322,11 +340,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16
   },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20
+  },
   errorText: { 
     textAlign: "center", 
     color: "red", 
     fontSize: 16, 
     marginTop: 20 
+  },
+  loginButton: {
+    backgroundColor: '#2196F3',
+    borderRadius: 8,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 24,
+    width: '100%'
+  },
+  loginButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16
   },
   modalContainer: {
     flex: 1,
