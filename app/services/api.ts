@@ -1,7 +1,8 @@
 import { User } from "../context/AuthContext";
 import { Dish, University, Room } from "../types";
+import Constants from 'expo-constants';
 
-const API_URL = "http://192.168.1.112:3000";
+const API_URL = Constants.expoConfig?.extra?.API_URL || "http://192.168.1.112:3000";
 
 // Interface pour les erreurs API
 interface ApiError extends Error {
