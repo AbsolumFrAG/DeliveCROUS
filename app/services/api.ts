@@ -1,5 +1,5 @@
 import { User } from "../context/AuthContext";
-import { Dish } from "../types";
+import { Dish, University, Room } from "../types";
 
 const API_URL = "http://192.168.1.112:3000";
 
@@ -404,6 +404,48 @@ export async function cancelOrder(id: string): Promise<Order> {
     return await response.json();
   } catch (error) {
     console.error(`Erreur lors de l'annulation de la commande ${id}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère la liste des universités depuis la base de données
+ * @returns Liste des universités
+ */
+export async function fetchUniversities(): Promise<University[]> {
+  try {
+    const response = await fetch(`${API_URL}/universities`);
+    
+    if (!response.ok) {
+      const error = new Error("Erreur lors de la récupération des universités") as ApiError;
+      error.status = response.status;
+      throw error;
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Erreur lors de la récupération des universités:", error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère la liste des salles depuis la base de données
+ * @returns Liste des salles
+ */
+export async function fetchRooms(): Promise<Room[]> {
+  try {
+    const response = await fetch(`${API_URL}/rooms`);
+    
+    if (!response.ok) {
+      const error = new Error("Erreur lors de la récupération des salles") as ApiError;
+      error.status = response.status;
+      throw error;
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Erreur lors de la récupération des salles:", error);
     throw error;
   }
 }

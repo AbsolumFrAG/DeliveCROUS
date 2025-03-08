@@ -19,3 +19,14 @@ export interface User {
   name: string;
   password: string;
 }
+
+export interface University {
+  id: string;
+  name: string;
+}
+
+export interface Room {
+  id: string;
+  name: string;
+  universityId: string;
+}
