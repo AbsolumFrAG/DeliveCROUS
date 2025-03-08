@@ -1,4 +1,5 @@
 import { User } from "../context/AuthContext";
+import { CartItem } from "../context/CartContext";
 import { Dish, University, Room } from "../types";
 
 const API_URL = "http://192.168.1.112:3000";
@@ -415,13 +416,15 @@ export async function cancelOrder(id: string): Promise<Order> {
 export async function fetchUniversities(): Promise<University[]> {
   try {
     const response = await fetch(`${API_URL}/universities`);
-    
+
     if (!response.ok) {
-      const error = new Error("Erreur lors de la récupération des universités") as ApiError;
+      const error = new Error(
+        "Erreur lors de la récupération des universités"
+      ) as ApiError;
       error.status = response.status;
       throw error;
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error("Erreur lors de la récupération des universités:", error);
@@ -436,16 +439,72 @@ export async function fetchUniversities(): Promise<University[]> {
 export async function fetchRooms(): Promise<Room[]> {
   try {
     const response = await fetch(`${API_URL}/rooms`);
-    
+
     if (!response.ok) {
-      const error = new Error("Erreur lors de la récupération des salles") as ApiError;
+      const error = new Error(
+        "Erreur lors de la récupération des salles"
+      ) as ApiError;
       error.status = response.status;
       throw error;
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error("Erreur lors de la récupération des salles:", error);
+    throw error;
+  }
+}
+
+/**
+ * Creates a new order from cart items
+ * @param userId The ID of the user placing the order
+ * @param cartItems Array of items in the cart with quantities
+ * @param totalAmount Total order amount
+ * @param deliveryLocation Location for delivery
+ * @returns The created order
+ */
+export async function createOrderFromCart(
+  userId: string,
+  cartItems: CartItem[],
+  totalAmount: number,
+  deliveryLocation: string
+): Promise<Order> {
+  try {
+    // Format dishes for the order
+    const dishes = cartItems.map((item) => ({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      image: item.image,
+      quantity: item.quantity,
+    }));
+
+    const response = await fetch(`${API_URL}/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        dishes,
+        totalAmount,
+        status: "en cours",
+        deliveryLocation,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+    });
+
+    if (!response.ok) {
+      const error = new Error(
+        "Erreur lors de la création de la commande"
+      ) as ApiError;
+      (error as ApiError).status = response.status;
+      throw error;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Erreur lors de la commande :", error);
     throw error;
   }
 }

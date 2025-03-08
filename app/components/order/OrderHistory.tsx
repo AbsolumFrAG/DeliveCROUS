@@ -1,23 +1,23 @@
+import { RootStackParamList } from "@/app/navigation/AppNavigator";
+import { fetchOrderHistory, Order } from "@/app/services/api";
+import { CommonActions, useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Image,
+  RefreshControl,
   StyleSheet,
   Text,
-  View,
-  RefreshControl,
   TouchableOpacity,
-  Image,
+  View,
 } from "react-native";
-import { fetchOrderHistory, Order } from "@/app/services/api";
-import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "@/app/navigation/AppNavigator";
-import * as Haptics from "expo-haptics";
 
 type OrderHistoryNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "OrderHistory"
+  "MainTabs"
 >;
 
 const OrderHistory = () => {
@@ -49,6 +49,16 @@ const OrderHistory = () => {
   const handleRefresh = () => {
     setRefreshing(true);
     loadOrders();
+  };
+
+  const navigateToMenu = () => {
+    // Use CommonActions for complex navigation
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: "MainTabs",
+        params: { screen: "DishListTab" },
+      })
+    );
   };
 
   const handleOrderPress = (order: Order) => {
@@ -121,10 +131,7 @@ const OrderHistory = () => {
       <Text style={styles.emptyText}>
         Aucune commande passée pour le moment.
       </Text>
-      <TouchableOpacity
-        style={styles.exploreButton}
-        onPress={() => navigation.navigate("DishList")}
-      >
+      <TouchableOpacity style={styles.exploreButton} onPress={navigateToMenu}>
         <Text style={styles.exploreButtonText}>Explorer le menu</Text>
       </TouchableOpacity>
     </View>
@@ -172,6 +179,7 @@ const OrderHistory = () => {
 };
 
 const styles = StyleSheet.create({
+  // Styles inchangés - pour économiser de l'espace je ne les inclus pas tous ici
   container: {
     flex: 1,
     padding: 16,

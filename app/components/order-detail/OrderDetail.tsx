@@ -1,7 +1,7 @@
 import { RootStackParamList } from "@/app/navigation/AppNavigator";
 import { cancelOrder, fetchOrderById, Order } from "@/app/services/api";
 import { Ionicons } from "@expo/vector-icons";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import { CommonActions, RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import * as Haptics from "expo-haptics";
 import { useEffect, useState } from "react";
@@ -49,6 +49,15 @@ export default function OrderDetail() {
     loadOrderDetails();
   }, [orderId]);
 
+  const navigateToOrderHistory = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: "MainTabs",
+        params: { screen: "OrderHistoryTab" },
+      })
+    );
+  };
+
   const handleCancelOrder = () => {
     Alert.alert(
       "Annuler la commande",
@@ -75,7 +84,12 @@ export default function OrderDetail() {
               Alert.alert(
                 "Commande annulée",
                 "Votre commande a été annulée avec succès",
-                [{ text: "OK" }]
+                [
+                  {
+                    text: "OK",
+                    onPress: () => navigateToOrderHistory(),
+                  },
+                ]
               );
             } catch (err) {
               console.error("Erreur lors de l'annulation:", err);

@@ -25,7 +25,7 @@ import {
 
 type DishListNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "DishList"
+  "MainTabs"
 >;
 
 export default function DishList() {

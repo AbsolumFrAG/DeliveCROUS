@@ -1,92 +1,123 @@
-import { RootStackParamList } from "@/app/navigation/AppNavigator"; 
-import { fetchDishById, createOrder, fetchUniversities, fetchRooms } from "@/app/services/api";
-import { Dish, University, Room } from "@/app/types";
-import { RouteProp, useRoute } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import useAuth from "@/app/context/AuthContext";
+import useCart, { CartItem } from "@/app/context/CartContext";
+import { RootStackParamList } from "@/app/navigation/AppNavigator";
+import { createOrderFromCart } from "@/app/services/api";
+import { Picker } from "@react-native-picker/picker";
+import { CommonActions, RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { useNavigation } from "@react-navigation/native";
-import { ActivityIndicator, Alert, StyleSheet, Text, View, ScrollView, TouchableOpacity, Modal} from "react-native";
+import * as Haptics from "expo-haptics";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 type OrderScreenRouteProp = RouteProp<RootStackParamList, "Order">;
-type OrderScreenNavigationProp = StackNavigationProp<RootStackParamList, "Order">;
+type OrderScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "Order"
+>;
 
 export default function OrderScreen() {
-  const navigation = useNavigation<OrderScreenNavigationProp>(); 
+  const navigation = useNavigation<OrderScreenNavigationProp>();
   const route = useRoute<OrderScreenRouteProp>();
-  const { dishId } = route.params; 
+  const { fromCart } = route.params || { fromCart: false };
 
-  const [dish, setDish] = useState<Dish | null>(null);
-  const [selectedUniversity, setSelectedUniversity] = useState<string>("");
-  const [selectedUniversityName, setSelectedUniversityName] = useState<string>("");
-  const [selectedRoom, setSelectedRoom] = useState<string>("");
-  const [selectedRoomName, setSelectedRoomName] = useState<string>("");
+  const [deliveryLocation, setDeliveryLocation] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [userId, setUserId] = useState<string | null>("1234");
-  const [universityModalVisible, setUniversityModalVisible] = useState(false);
-  const [roomModalVisible, setRoomModalVisible] = useState(false);
-  const [universities, setUniversities] = useState<University[]>([]);
-  const [allRooms, setAllRooms] = useState<Room[]>([]);
+  const { user } = useAuth();
+  const { items, totalAmount, clearCart } = useCart();
+  const [redirecting, setRedirecting] = useState(false);
 
-  const filteredRooms = allRooms.filter(
-    (room) => room.universityId === selectedUniversity
-  );
+  const deliveryLocations = [
+    "Salle TD1",
+    "Salle TD2",
+    "Salle TP1",
+    "Salle TP2",
+  ];
 
+  // Si on accède à cet écran sans passer par le panier, rediriger vers le panier
   useEffect(() => {
-    async function loadData() {
-      setIsLoading(true);
-      try {
-        const dishData = await fetchDishById(dishId);
-        setDish(dishData);
-        const universitiesData = await fetchUniversities();
-        setUniversities(universitiesData);
-        const roomsData = await fetchRooms();
-        setAllRooms(roomsData);
-      } catch (error) {
-        Alert.alert("Erreur", "Impossible de récupérer les données nécessaires.");
-      } finally {
-        setIsLoading(false);
-      }
+    if (!fromCart && !redirecting) {
+      setRedirecting(true);
+      navigation.replace("Cart");
     }
-    loadData();
-  }, [dishId]);
+  }, [fromCart, navigation, redirecting]);
 
+  // Si le panier est vide, rediriger vers le menu
   useEffect(() => {
-    setSelectedRoom("");
-    setSelectedRoomName("");
-  }, [selectedUniversity]);
+    if (items.length === 0 && !redirecting) {
+      setRedirecting(true);
+      Alert.alert(
+        "Panier vide",
+        "Votre panier est vide. Ajoutez des plats avant de commander.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: "MainTabs",
+                  params: { screen: "DishListTab" },
+                })
+              );
+            },
+          },
+        ]
+      );
+    }
+  }, [items.length, navigation, redirecting]);
 
-  const selectUniversity = (id: string, name: string) => {
-    setSelectedUniversity(id);
-    setSelectedUniversityName(name);
-    setUniversityModalVisible(false);
-  };
-
-  const selectRoom = (id: string, name: string) => {
-    setSelectedRoom(id);
-    setSelectedRoomName(name);
-    setRoomModalVisible(false);
-  };
+  if (redirecting || !fromCart || items.length === 0) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0066CC" />
+      </View>
+    );
+  }
 
   async function handleOrder() {
-    if (!selectedUniversity || !selectedRoom) {
-      Alert.alert("Erreur", "Veuillez sélectionner une université et une salle de livraison.");
+    if (!deliveryLocation) {
+      Alert.alert("Erreur", "Veuillez sélectionner une salle de livraison.");
       return;
     }
-    if (!dish) {
-      Alert.alert("Erreur", "Le plat sélectionné est introuvable.");
-      return;
-    }
-    if (!userId) {
+
+    if (!user) {
       Alert.alert("Erreur", "Utilisateur non identifié.");
       return;
     }
-    
+
     try {
       setIsLoading(true);
-      const deliveryLocation = `${selectedUniversityName} - ${selectedRoomName}`;
-      const order = await createOrder(userId, dish, deliveryLocation);
-      Alert.alert("Commande réussie", `Votre commande pour ${dish.name} sera livrée à ${deliveryLocation}.`);
-      navigation.navigate("OrderHistory");
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+      await createOrderFromCart(user.id, items, totalAmount, deliveryLocation);
+
+      clearCart();
+
+      Alert.alert(
+        "Commande réussie",
+        `Votre commande sera livrée à ${deliveryLocation}.`,
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: "MainTabs",
+                  params: { screen: "OrderHistoryTab" },
+                })
+              );
+            },
+          },
+        ]
+      );
     } catch (error) {
       console.error("Erreur lors de la commande:", error);
       Alert.alert("Erreur", "Une erreur est survenue lors de la commande.");
@@ -95,252 +126,222 @@ export default function OrderScreen() {
     }
   }
 
-  const renderAllergens = (allergens?: string[]) => {
-    if (!allergens || allergens.length === 0) return null;
-    
-    return (
-      <View style={styles.allergensContainer}>
-        <Text style={styles.allergensTitle}>Allergènes :</Text>
-        <Text style={styles.allergensText}>{allergens.join(", ")}</Text>
-      </View>
-    );
-  };
+  const renderOrderItem = ({ item }: { item: CartItem }) => (
+    <View style={styles.cartItem}>
+      <Image source={{ uri: item.image }} style={styles.itemImage} />
 
-  if (isLoading) {
-    return <ActivityIndicator style={styles.loader} />;
-  }
+      <View style={styles.itemDetails}>
+        <Text style={styles.itemName} numberOfLines={1}>
+          {item.name}
+        </Text>
+        <Text style={styles.itemPrice}>
+          {item.price.toFixed(2)} € x {item.quantity}
+        </Text>
+      </View>
+
+      <Text style={styles.itemTotalPrice}>
+        {(item.price * item.quantity).toFixed(2)} €
+      </Text>
+    </View>
+  );
 
   return (
-    <ScrollView style={styles.container}>
-      {dish ? (
-        <>
-          <Text style={styles.title}>Commander {dish.name}</Text>
-          {dish.allergens && renderAllergens(dish.allergens)}
-          <Text style={styles.subtitle}>Sélectionnez votre université :</Text>
-          <TouchableOpacity 
-            style={styles.selectButton}
-            onPress={() => setUniversityModalVisible(true)}
+    <View style={styles.container}>
+      <Text style={styles.title}>Finaliser la commande</Text>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Récapitulatif de la commande</Text>
+        <FlatList
+          data={items}
+          renderItem={renderOrderItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.orderList}
+        />
+
+        <View style={styles.totalContainer}>
+          <Text style={styles.totalLabel}>Total</Text>
+          <Text style={styles.totalAmount}>{totalAmount.toFixed(2)} €</Text>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Lieu de livraison</Text>
+        <Text style={styles.subtitle}>
+          Sélectionnez votre salle de livraison :
+        </Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={deliveryLocation}
+            onValueChange={(itemValue) => setDeliveryLocation(itemValue)}
+            style={styles.picker}
           >
-            <Text style={selectedUniversity ? styles.selectButtonTextSelected : styles.selectButtonText}>
-              {selectedUniversityName || "Sélectionnez une université"}
-            </Text>
-          </TouchableOpacity>
-          
-          <Text style={styles.subtitle}>Sélectionnez votre salle de livraison :</Text>
-          <TouchableOpacity 
-            style={[styles.selectButton, !selectedUniversity && styles.selectButtonDisabled]}
-            onPress={() => {
-              if (selectedUniversity) {
-                setRoomModalVisible(true);
-              } else {
-                Alert.alert("Information", "Veuillez d'abord sélectionner une université");
-              }
-            }}
-          >
-            <Text style={selectedRoom ? styles.selectButtonTextSelected : styles.selectButtonText}>
-              {selectedRoomName || (selectedUniversity ? "Sélectionnez une salle" : "Sélectionnez d'abord une université")}
-            </Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[
-              styles.orderButton, 
-              (!selectedUniversity || !selectedRoom) && styles.orderButtonDisabled
-            ]}
-            onPress={handleOrder}
-            disabled={!selectedUniversity || !selectedRoom}
-          >
-            <Text style={styles.orderButtonText}>Commander</Text>
-          </TouchableOpacity>
-          
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={universityModalVisible}
-            onRequestClose={() => setUniversityModalVisible(false)}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Sélectionnez une université</Text>
-                
-                <ScrollView style={styles.modalScrollView}>
-                  {universities.map((univ) => (
-                    <TouchableOpacity
-                      key={univ.id}
-                      style={styles.modalItem}
-                      onPress={() => selectUniversity(univ.id, univ.name)}
-                    >
-                      <Text style={styles.modalItemText}>{univ.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-                
-                <TouchableOpacity
-                  style={styles.modalCloseButton}
-                  onPress={() => setUniversityModalVisible(false)}
-                >
-                  <Text style={styles.modalCloseButtonText}>Annuler</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-          
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={roomModalVisible}
-            onRequestClose={() => setRoomModalVisible(false)}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Sélectionnez une salle</Text>
-                
-                <ScrollView style={styles.modalScrollView}>
-                  {filteredRooms.map((room) => (
-                    <TouchableOpacity
-                      key={room.id}
-                      style={styles.modalItem}
-                      onPress={() => selectRoom(room.id, room.name)}
-                    >
-                      <Text style={styles.modalItemText}>{room.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-                
-                <TouchableOpacity
-                  style={styles.modalCloseButton}
-                  onPress={() => setRoomModalVisible(false)}
-                >
-                  <Text style={styles.modalCloseButtonText}>Annuler</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-        </>
-      ) : (
-        <Text style={styles.errorText}>Impossible de charger les informations du plat.</Text>
-      )}
-    </ScrollView>
+            <Picker.Item label="Sélectionnez une salle" value="" />
+            {deliveryLocations.map((location) => (
+              <Picker.Item key={location} label={location} value={location} />
+            ))}
+          </Picker>
+        </View>
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={() => navigation.goBack()}
+          disabled={isLoading}
+        >
+          <Text style={styles.cancelButtonText}>Retour</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.confirmButton,
+            !deliveryLocation && styles.disabledButton,
+          ]}
+          onPress={handleOrder}
+          disabled={isLoading || !deliveryLocation}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#fff" size="small" />
+          ) : (
+            <Text style={styles.confirmButtonText}>Confirmer</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    padding: 16,
-    backgroundColor: '#fff' 
-  },
-  loader: { 
-    flex: 1, 
-    justifyContent: "center", 
-    alignItems: "center" 
-  },
-  title: { 
-    fontSize: 24, 
-    marginBottom: 20, 
-    textAlign: "center",
-    fontWeight: "bold"
-  },
-  subtitle: { 
-    fontSize: 16, 
-    marginBottom: 8,
-    marginTop: 16
-  },
-  allergensContainer: {
-    backgroundColor: '#FFF9C4',
-    padding: 15,
-    borderRadius: 8,
-    marginTop: 8,
-    marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#FBC02D'
-  },
-  allergensTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-    fontSize: 16
-  },
-  allergensText: {
-    fontSize: 15
-  },
-  selectButton: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 16,
-    backgroundColor: '#f9f9f9'
-  },
-  selectButtonDisabled: {
-    backgroundColor: '#f1f1f1',
-    borderColor: '#ccc'
-  },
-  selectButtonText: {
-    color: '#888'
-  },
-  selectButtonTextSelected: {
-    color: '#000'
-  },
-  orderButton: {
-    backgroundColor: '#2196F3',
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 32
-  },
-  orderButtonDisabled: {
-    backgroundColor: '#B0BEC5'
-  },
-  orderButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16
-  },
-  errorText: { 
-    textAlign: "center", 
-    color: "red", 
-    fontSize: 16, 
-    marginTop: 20 
-  },
-  modalContainer: {
+  container: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+    padding: 16,
+    backgroundColor: "#f8f9fa",
   },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    margin: 20,
-    padding: 20,
-    maxHeight: '80%'
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 24,
+    textAlign: "center",
+  },
+  section: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 16,
-    textAlign: 'center'
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  modalItem: {
-    padding: 16,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 16,
+  },
+  orderList: {
+    paddingBottom: 8,
+  },
+  cartItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee'
+    borderBottomColor: "#eee",
   },
-  modalItemText: {
-    fontSize: 16
+  itemImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 6,
   },
-  modalCloseButton: {
+  itemDetails: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  itemName: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  itemPrice: {
+    fontSize: 13,
+    color: "#666",
+    marginTop: 4,
+  },
+  itemTotalPrice: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#0066CC",
+  },
+  totalContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: 16,
-    padding: 16,
-    backgroundColor: '#f5f5f5',
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+  },
+  totalLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  totalAmount: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#0066CC",
+  },
+  subtitle: {
+    fontSize: 14,
+    marginBottom: 12,
+    color: "#666",
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#ccc",
     borderRadius: 8,
-    alignItems: 'center'
+    overflow: "hidden",
   },
-  modalCloseButtonText: {
-    color: '#f44336',
-    fontWeight: 'bold'
+  picker: {
+    height: 50,
   },
-  modalScrollView: {
-    maxHeight: '90%',
-  }
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 24,
+  },
+  cancelButton: {
+    flex: 1,
+    backgroundColor: "#f8f9fa",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 14,
+    marginRight: 8,
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  confirmButton: {
+    flex: 2,
+    backgroundColor: "#0066CC",
+    borderRadius: 8,
+    padding: 14,
+    alignItems: "center",
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "white",
+  },
+  disabledButton: {
+    backgroundColor: "#A0C8E6",
+  },
 });

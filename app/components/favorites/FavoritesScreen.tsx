@@ -1,4 +1,8 @@
-import { useNavigation } from "@react-navigation/native";
+import useAuth from "@/app/context/AuthContext";
+import { RootStackParamList } from "@/app/navigation/AppNavigator";
+import { getFavoritesByUserId, removeFromFavorites } from "@/app/services/api";
+import { Dish } from "@/app/types";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useState } from "react";
@@ -13,14 +17,9 @@ import {
   View,
 } from "react-native";
 
-import useAuth from "@/app/context/AuthContext";
-import { RootStackParamList } from "@/app/navigation/AppNavigator";
-import { getFavoritesByUserId, removeFromFavorites } from "@/app/services/api";
-import { Dish } from "@/app/types";
-
 type FavoritesNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "Favorites"
+  "MainTabs"
 >;
 
 export default function FavoritesScreen() {
@@ -71,6 +70,15 @@ export default function FavoritesScreen() {
     }
   };
 
+  const navigateToMenu = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: "MainTabs",
+        params: { screen: "DishListTab" },
+      })
+    );
+  };
+
   const renderItem = ({ item }: { item: Dish }) => (
     <TouchableOpacity
       style={styles.card}
@@ -102,10 +110,7 @@ export default function FavoritesScreen() {
       <Text style={styles.emptyText}>
         Vous n'avez pas encore de plats favoris
       </Text>
-      <TouchableOpacity
-        style={styles.exploreButton}
-        onPress={() => navigation.navigate("DishList")}
-      >
+      <TouchableOpacity style={styles.exploreButton} onPress={navigateToMenu}>
         <Text style={styles.exploreButtonText}>Explorer le menu</Text>
       </TouchableOpacity>
     </View>
