@@ -1,50 +1,66 @@
-# Welcome to your Expo app 👋
+# Bienvenue sur DeliveCROUS 🍽️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+DeliveCROUS est une application mobile qui permet aux étudiants de commander des plats du CROUS directement depuis leur smartphone et de se faire livrer sur leur campus universitaire.
 
-## Get started
+## Fonctionnalités principales
 
-1. Install dependencies
+- **Inscription et connexion** faciles pour accéder à vos services de restauration universitaire
+- **Catalogue de plats** complet proposé par les restaurants CROUS
+- **Système de favoris** pour retrouver rapidement vos repas préférés
+- **Commandes personnalisées** avec choix de l'université et de la salle de livraison
+- **Historique des commandes** avec possibilité de visualiser les détails et d'annuler
 
-   ```bash
-   npm install
+## Installation et démarrage
+
+### Prérequis
+
+- Node.js et npm installés sur votre machine
+- Expo CLI installé globalement (`npm install -g expo-cli`)
+
+### Configuration de l'environnement
+
+1. Créez un fichier `.env` à la racine du projet en suivant le modèle du fichier `.env.example`
+2. Renseignez votre adresse IP locale dans la variable `API_URL` si vous travaillez en local :
+   ```
+   API_URL=http://VOTRE_ADRESSE_IP:PORT
    ```
 
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### Installation des dépendances
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Lancement du projet
 
-## Learn more
+Le projet nécessite deux terminaux :
 
-To learn more about developing your project with Expo, look at the following resources:
+1. Pour lancer le backend :
+```bash
+npm run backend
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+2. Pour lancer l'application :
+```bash
+npm start
+```
 
-## Join the community
+Suivez les instructions dans le terminal pour ouvrir l'application sur :
+- Votre appareil mobile avec Expo Go
+- Un émulateur Android
+- Un simulateur iOS
 
-Join our community of developers creating universal apps.
+## Structure de l'application
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **Écran d'authentification** : Inscription et connexion
+- **Écran principal** : Liste des plats disponibles
+- **Écran détail** : Informations complètes sur un plat et option de commande
+- **Écran favoris** : Accès rapide à vos plats préférés
+- **Écran commandes** : Historique des commandes passées
+- **Panier** : Ajout de plusieurs plats pour une commande groupée
+
+## Support
+
+Si vous rencontrez des problèmes lors de l'installation ou de l'utilisation de DeliveCROUS, contactez l'équipe de développement.
+
+Bon appétit et bonne utilisation de DeliveCROUS ! 🍕🥗🍱
