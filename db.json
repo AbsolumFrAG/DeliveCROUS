@@ -91,10 +91,10 @@
         }
       ],
       "totalAmount": 7,
-      "status": "en cours",
+      "status": "annulée",
       "deliveryLocation": "123 rue des plats",
       "createdAt": "2024-03-08T12:00:00.000Z",
-      "updatedAt": "2024-03-08T12:00:00.000Z"
+      "updatedAt": "2025-03-08T18:05:57.843Z"
     },
     {
       "id": "5ae1",

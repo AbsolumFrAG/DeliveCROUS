@@ -1,16 +1,11 @@
-import { Dish } from "../types";
 import { User } from "../context/AuthContext";
+import { Dish } from "../types";
 
-const API_URL = "http://localhost:3000";
+const API_URL = "http://192.168.1.112:3000";
 
 // Interface pour les erreurs API
 interface ApiError extends Error {
   status?: number;
-}
-
-// Types pour l'authentification
-interface AuthResponse {
-  user: User;
 }
 
 interface UserCredentials {
@@ -24,20 +19,21 @@ export interface Favorite {
   userId: string;
   dishId: string;
 }
+
 export interface Order {
   id: string;
   userId: string;
-  dishes: Dish[]; 
-  totalAmount: number; 
+  dishes: Dish[];
+  totalAmount: number;
   status: string;
+  deliveryLocation: string;
   createdAt: string;
-  updatedAt: string; 
+  updatedAt: string;
 }
-
 
 export async function createOrder(
   userId: string,
-  dish: Dish, 
+  dish: Dish,
   deliveryLocation: string
 ): Promise<Order> {
   try {
@@ -48,13 +44,15 @@ export async function createOrder(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId,
-        dishes: [{ 
-          id: dish.id,
-          name: dish.name, 
-          description: dish.description, 
-          price: dish.price, 
-          image: dish.image 
-        }],
+        dishes: [
+          {
+            id: dish.id,
+            name: dish.name,
+            description: dish.description,
+            price: dish.price,
+            image: dish.image,
+          },
+        ],
         totalAmount,
         status: "en cours",
         deliveryLocation,
@@ -64,18 +62,19 @@ export async function createOrder(
     });
 
     if (!response.ok) {
-      const error = new Error("Erreur lors de la création de la commande") as ApiError;
+      const error = new Error(
+        "Erreur lors de la création de la commande"
+      ) as ApiError;
       (error as ApiError).status = response.status;
       throw error;
     }
 
-    return await response.json(); 
+    return await response.json();
   } catch (error) {
     console.error("Erreur lors de la commande :", error);
     throw error;
   }
 }
-
 
 // Fonctions liées aux plats
 export async function fetchDishes(): Promise<Dish[]> {
@@ -107,7 +106,6 @@ export async function fetchDishById(id: string): Promise<Dish | null> {
     return null;
   }
 }
-
 
 // Fonctions liées à l'authentification
 export async function loginUser(credentials: UserCredentials): Promise<User> {
@@ -316,5 +314,96 @@ export async function checkIsFavorite(
   } catch (error) {
     console.error("Erreur lors de la vérification du favori:", error);
     return false;
+  }
+}
+
+/**
+ * Récupère l'historique des commandes
+ * @returns Une liste des commandes
+ */
+export async function fetchOrderHistory(): Promise<Order[]> {
+  try {
+    const response = await fetch(`${API_URL}/orders`);
+
+    if (!response.ok) {
+      const error = new Error("Erreur réseau") as ApiError;
+      error.status = response.status;
+      throw error;
+    }
+
+    const orders: Order[] = await response.json();
+    return orders;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des commandes:", error);
+    throw error;
+  }
+}
+
+/**
+ * Récupère une commande spécifique par son ID
+ * @param id L'identifiant de la commande à récupérer
+ * @returns Les détails de la commande
+ */
+export async function fetchOrderById(id: string): Promise<Order> {
+  try {
+    const response = await fetch(`${API_URL}/orders/${id}`);
+
+    if (!response.ok) {
+      const error = new Error(
+        "Erreur lors de la récupération de la commande"
+      ) as ApiError;
+      error.status = response.status;
+      throw error;
+    }
+
+    const order: Order = await response.json();
+    return order;
+  } catch (error) {
+    console.error(
+      `Erreur lors de la récupération de la commande ${id}:`,
+      error
+    );
+    throw error;
+  }
+}
+
+/**
+ * Annule une commande existante
+ * @param id L'identifiant de la commande à annuler
+ * @returns La commande mise à jour
+ */
+export async function cancelOrder(id: string): Promise<Order> {
+  try {
+    // D'abord, récupérer la commande actuelle
+    const currentOrder = await fetchOrderById(id);
+
+    // Mettre à jour le statut de la commande
+    const updatedOrder = {
+      ...currentOrder,
+      status: "annulée",
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Envoyer la mise à jour au serveur
+    const response = await fetch(`${API_URL}/orders/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedOrder),
+    });
+
+    if (!response.ok) {
+      const error = new Error(
+        "Erreur lors de l'annulation de la commande"
+      ) as ApiError;
+      error.status = response.status;
+      throw error;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Erreur lors de l'annulation de la commande ${id}:`, error);
+    throw error;
   }
 }

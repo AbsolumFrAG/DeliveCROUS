@@ -6,10 +6,10 @@ import RegisterScreen from "../components/auth-wizard/RegisterScreen";
 import FavoritesScreen from "../components/favorites/FavoritesScreen";
 import DishDetail from "../components/menu/DishDetail";
 import DishList from "../components/menu/DishList";
+import OrderDetail from "../components/order-detail/OrderDetail";
+import OrderHistory from "../components/order/OrderHistory";
 import OrderScreen from "../components/order/OrderScreen";
 import useAuth from "../context/AuthContext";
-import OrderHistory from "../components/order/OrderHistory";
-import { StackNavigationProp } from '@react-navigation/stack';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -19,19 +19,18 @@ export type RootStackParamList = {
   DishDetail: { dishId: string };
   Order: { dishId: string };
   MainTabs: undefined;
-  OrderHistory: undefined; 
+  OrderHistory: undefined;
+  OrderDetail: { orderId: string };
 };
 
 export type TabParamList = {
   Menu: undefined;
   Favorites: undefined;
-  "OrderHsitory": undefined;  
+  OrderHistory: undefined;
 };
 
-type OrderScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Order'>;
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
-
 
 function MainTabs() {
   return (
@@ -48,6 +47,8 @@ function MainTabs() {
                 color={color}
               />
             );
+          } else if (route.name === "OrderHistory") {
+            return <FontAwesome name="history" size={size} color={color} />;
           }
           return <FontAwesome name="home" size={size} color={color} />;
         },
@@ -72,10 +73,10 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="OrderHsitory"
+        name="OrderHistory"
         component={OrderHistory}
         options={{
-          title: "Order Hsitory",
+          title: "Commandes",
           headerShown: false,
         }}
       />
@@ -108,7 +109,12 @@ export default function AppNavigator() {
           <Stack.Screen
             name="OrderHistory"
             component={OrderHistory}
-            options={{ title: "Order History" }}
+            options={{ title: "Historique des commandes" }}
+          />
+          <Stack.Screen
+            name="OrderDetail"
+            component={OrderDetail}
+            options={{ title: "Détail de la commande" }}
           />
         </>
       ) : (
