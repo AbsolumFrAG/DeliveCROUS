@@ -23,6 +23,7 @@ import {
   View,
 } from "react-native";
 
+// Type pour la navigation spécifique à l'écran de liste des plats
 type DishListNavigationProp = StackNavigationProp<
   RootStackParamList,
   "DishList"
@@ -36,13 +37,15 @@ export default function DishList() {
   const navigation = useNavigation<DishListNavigationProp>();
   const { user } = useAuth();
 
+  /**
+   * Charge les plats depuis l'API et vérifie les favoris de l'utilisateur
+   */
   const loadDishes = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await fetchDishes();
       setDishes(data);
 
-      // Charger les favoris de l'utilisateur si connecté
       if (user) {
         await loadFavoriteStatus(data);
       }
@@ -55,13 +58,14 @@ export default function DishList() {
     }
   }, [user]);
 
+  /**
+   * Vérifie quels plats sont en favoris pour l'utilisateur actuel
+   */
   const loadFavoriteStatus = async (dishesData: Dish[]) => {
     if (!user) return;
 
     try {
       const favoriteIds: string[] = [];
-
-      // Pour chaque plat, vérifier s'il est en favori
       const checkPromises = dishesData.map(async (dish) => {
         const isFavorite = await checkIsFavorite(user.id, dish.id);
         if (isFavorite) {
@@ -76,10 +80,14 @@ export default function DishList() {
     }
   };
 
+  // Charge les plats au montage du composant
   useEffect(() => {
     loadDishes();
   }, [loadDishes]);
 
+  /**
+   * Ajoute ou supprime un plat des favoris
+   */
   const toggleFavorite = async (id: string) => {
     if (!user) {
       Alert.alert(
@@ -91,6 +99,7 @@ export default function DishList() {
     }
 
     try {
+      // Retour haptique pour améliorer l'expérience utilisateur
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
       const isFavorite = favorites.includes(id);
@@ -108,11 +117,15 @@ export default function DishList() {
     }
   };
 
+  // Gère l'actualisation de la liste par "pull-to-refresh"
   const handleRefresh = () => {
     setRefreshing(true);
     loadDishes();
   };
 
+  /**
+   * Rendu d'un élément de la liste de plats
+   */
   const renderItem = ({ item }: { item: Dish }) => (
     <TouchableOpacity
       style={styles.card}

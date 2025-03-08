@@ -16,6 +16,7 @@ import {
   View,
 } from "react-native";
 
+// Types pour la navigation et les paramètres de route
 type OrderDetailRouteProp = RouteProp<RootStackParamList, "OrderDetail">;
 type OrderDetailNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -31,6 +32,7 @@ export default function OrderDetail() {
   const navigation = useNavigation<OrderDetailNavigationProp>();
   const { orderId } = route.params;
 
+  // Chargement initial des détails de la commande
   useEffect(() => {
     async function loadOrderDetails() {
       try {
@@ -49,6 +51,7 @@ export default function OrderDetail() {
     loadOrderDetails();
   }, [orderId]);
 
+  // Gestion de l'annulation d'une commande
   const handleCancelOrder = () => {
     Alert.alert(
       "Annuler la commande",
@@ -71,7 +74,6 @@ export default function OrderDetail() {
               const updatedOrder = await cancelOrder(orderId);
               setOrder(updatedOrder);
 
-              // Notification de succès
               Alert.alert(
                 "Commande annulée",
                 "Votre commande a été annulée avec succès",
@@ -92,6 +94,7 @@ export default function OrderDetail() {
     );
   };
 
+  // Affichage du chargement
   if (isLoading) {
     return (
       <View style={styles.centeredContainer}>
@@ -100,6 +103,7 @@ export default function OrderDetail() {
     );
   }
 
+  // Affichage des erreurs
   if (error || !order) {
     return (
       <View style={styles.centeredContainer}>
@@ -195,6 +199,7 @@ export default function OrderDetail() {
         </View>
       </View>
 
+      {/* Bouton d'annulation uniquement disponible pour les commandes en cours */}
       {order.status === "en cours" && (
         <TouchableOpacity
           style={styles.cancelButton}

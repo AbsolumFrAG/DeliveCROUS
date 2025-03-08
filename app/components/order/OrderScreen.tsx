@@ -7,14 +7,22 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
 import { ActivityIndicator, Alert, StyleSheet, Text, View, ScrollView, TouchableOpacity, Modal} from "react-native";
 
+/**
+ * Types pour la navigation et les routes
+ */
 type OrderScreenRouteProp = RouteProp<RootStackParamList, "Order">;
 type OrderScreenNavigationProp = StackNavigationProp<RootStackParamList, "Order">;
 
+/**
+ * Écran de commande permettant à l'utilisateur de sélectionner un lieu de livraison
+ * et de valider sa commande pour un plat spécifique
+ */
 export default function OrderScreen() {
   const navigation = useNavigation<OrderScreenNavigationProp>(); 
   const route = useRoute<OrderScreenRouteProp>();
   const { dishId } = route.params; 
 
+  // États pour gérer les données et les sélections
   const [dish, setDish] = useState<Dish | null>(null);
   const [selectedUniversity, setSelectedUniversity] = useState<string>("");
   const [selectedUniversityName, setSelectedUniversityName] = useState<string>("");
@@ -27,10 +35,12 @@ export default function OrderScreen() {
   const [universities, setUniversities] = useState<University[]>([]);
   const [allRooms, setAllRooms] = useState<Room[]>([]);
 
+  // Filtrage des salles en fonction de l'université sélectionnée
   const filteredRooms = allRooms.filter(
     (room) => room.universityId === selectedUniversity
   );
 
+  // Chargement initial des données
   useEffect(() => {
     async function loadData() {
       setIsLoading(true);
@@ -50,23 +60,33 @@ export default function OrderScreen() {
     loadData();
   }, [dishId]);
 
+  // Réinitialiser la salle sélectionnée lorsque l'utilisateur change d'université
   useEffect(() => {
     setSelectedRoom("");
     setSelectedRoomName("");
   }, [selectedUniversity]);
 
+  /**
+   * Sélectionne une université et ferme la modale
+   */
   const selectUniversity = (id: string, name: string) => {
     setSelectedUniversity(id);
     setSelectedUniversityName(name);
     setUniversityModalVisible(false);
   };
 
+  /**
+   * Sélectionne une salle et ferme la modale
+   */
   const selectRoom = (id: string, name: string) => {
     setSelectedRoom(id);
     setSelectedRoomName(name);
     setRoomModalVisible(false);
   };
 
+  /**
+   * Gère la validation de la commande
+   */
   async function handleOrder() {
     if (!selectedUniversity || !selectedRoom) {
       Alert.alert("Erreur", "Veuillez sélectionner une université et une salle de livraison.");
@@ -95,6 +115,9 @@ export default function OrderScreen() {
     }
   }
 
+  /**
+   * Affiche les allergènes si présents
+   */
   const renderAllergens = (allergens?: string[]) => {
     if (!allergens || allergens.length === 0) return null;
     
@@ -153,6 +176,7 @@ export default function OrderScreen() {
             <Text style={styles.orderButtonText}>Commander</Text>
           </TouchableOpacity>
           
+          {/* Modale de sélection d'université */}
           <Modal
             animationType="fade"
             transparent={true}
@@ -185,6 +209,7 @@ export default function OrderScreen() {
             </View>
           </Modal>
           
+          {/* Modale de sélection de salle */}
           <Modal
             animationType="fade"
             transparent={true}

@@ -15,11 +15,18 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "@/app/navigation/AppNavigator";
 import * as Haptics from "expo-haptics";
 
+/**
+ * Type pour la navigation spécifique à l'écran d'historique des commandes
+ */
 type OrderHistoryNavigationProp = StackNavigationProp<
   RootStackParamList,
   "OrderHistory"
 >;
 
+/**
+ * Écran d'historique des commandes
+ * Affiche la liste des commandes passées par l'utilisateur
+ */
 const OrderHistory = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,6 +34,9 @@ const OrderHistory = () => {
   const [error, setError] = useState<string | null>(null);
   const navigation = useNavigation<OrderHistoryNavigationProp>();
 
+  /**
+   * Charge l'historique des commandes depuis l'API
+   */
   const loadOrders = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -42,20 +52,30 @@ const OrderHistory = () => {
     }
   }, []);
 
+  // Charge les commandes au montage du composant
   useEffect(() => {
     loadOrders();
   }, [loadOrders]);
 
+  /**
+   * Gère l'actualisation de la liste par pull-to-refresh
+   */
   const handleRefresh = () => {
     setRefreshing(true);
     loadOrders();
   };
 
+  /**
+   * Navigue vers le détail d'une commande
+   */
   const handleOrderPress = (order: Order) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     navigation.navigate("OrderDetail", { orderId: order.id });
   };
 
+  /**
+   * Rendu d'un élément de la liste des commandes
+   */
   const renderOrderItem = ({ item }: { item: Order }) => (
     <TouchableOpacity
       style={styles.card}
@@ -116,6 +136,9 @@ const OrderHistory = () => {
     </TouchableOpacity>
   );
 
+  /**
+   * Composant affiché quand la liste est vide
+   */
   const EmptyListComponent = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyText}>

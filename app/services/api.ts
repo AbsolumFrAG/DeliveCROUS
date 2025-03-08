@@ -32,6 +32,13 @@ export interface Order {
   updatedAt: string;
 }
 
+/**
+ * Crée une nouvelle commande
+ * @param userId Identifiant de l'utilisateur
+ * @param dish Plat commandé
+ * @param deliveryLocation Lieu de livraison
+ * @returns La commande créée
+ */
 export async function createOrder(
   userId: string,
   dish: Dish,
@@ -77,7 +84,10 @@ export async function createOrder(
   }
 }
 
-// Fonctions liées aux plats
+/**
+ * Récupère tous les plats disponibles
+ * @returns Liste des plats
+ */
 export async function fetchDishes(): Promise<Dish[]> {
   try {
     const response = await fetch(`${API_URL}/dishes`);
@@ -93,6 +103,11 @@ export async function fetchDishes(): Promise<Dish[]> {
   }
 }
 
+/**
+ * Récupère un plat spécifique par son ID
+ * @param id Identifiant du plat
+ * @returns Le plat trouvé ou null
+ */
 export async function fetchDishById(id: string): Promise<Dish | null> {
   try {
     const response = await fetch(`${API_URL}/dishes/${id}`);
@@ -108,7 +123,11 @@ export async function fetchDishById(id: string): Promise<Dish | null> {
   }
 }
 
-// Fonctions liées à l'authentification
+/**
+ * Authentifie un utilisateur
+ * @param credentials Identifiants de connexion
+ * @returns Données de l'utilisateur authentifié
+ */
 export async function loginUser(credentials: UserCredentials): Promise<User> {
   try {
     // Vérifier si l'utilisateur existe
@@ -139,6 +158,11 @@ export async function loginUser(credentials: UserCredentials): Promise<User> {
   }
 }
 
+/**
+ * Inscrit un nouvel utilisateur
+ * @param credentials Données d'inscription
+ * @returns Données du nouvel utilisateur
+ */
 export async function registerUser(
   credentials: UserCredentials
 ): Promise<User> {
@@ -182,7 +206,11 @@ export async function registerUser(
   }
 }
 
-// Fonctions liées aux favoris
+/**
+ * Récupère les plats favoris d'un utilisateur
+ * @param userId Identifiant de l'utilisateur
+ * @returns Liste des plats favoris
+ */
 export async function getFavoritesByUserId(userId: string): Promise<Dish[]> {
   try {
     // Récupérer les favoris de l'utilisateur
@@ -215,6 +243,12 @@ export async function getFavoritesByUserId(userId: string): Promise<Dish[]> {
   }
 }
 
+/**
+ * Ajoute un plat aux favoris d'un utilisateur
+ * @param userId Identifiant de l'utilisateur
+ * @param dishId Identifiant du plat
+ * @returns L'objet favori créé
+ */
 export async function addToFavorites(
   userId: string,
   dishId: string
@@ -256,6 +290,11 @@ export async function addToFavorites(
   }
 }
 
+/**
+ * Retire un plat des favoris d'un utilisateur
+ * @param userId Identifiant de l'utilisateur
+ * @param dishId Identifiant du plat
+ */
 export async function removeFromFavorites(
   userId: string,
   dishId: string
@@ -296,6 +335,12 @@ export async function removeFromFavorites(
   }
 }
 
+/**
+ * Vérifie si un plat est dans les favoris d'un utilisateur
+ * @param userId Identifiant de l'utilisateur
+ * @param dishId Identifiant du plat
+ * @returns true si le plat est en favori, false sinon
+ */
 export async function checkIsFavorite(
   userId: string,
   dishId: string
@@ -320,7 +365,7 @@ export async function checkIsFavorite(
 
 /**
  * Récupère l'historique des commandes
- * @returns Une liste des commandes
+ * @returns Liste des commandes
  */
 export async function fetchOrderHistory(): Promise<Order[]> {
   try {

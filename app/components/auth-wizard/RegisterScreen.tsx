@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 
+// Type pour la navigation spécifique à l'écran d'inscription
 type RegisterNavigationProp = StackNavigationProp<
   RootStackParamList,
   "Register"
@@ -27,6 +28,10 @@ export default function RegisterScreen() {
   const navigation = useNavigation<RegisterNavigationProp>();
   const { register, isLoading } = useAuth();
 
+  /**
+   * Gère le processus d'inscription
+   * Valide les entrées et redirige vers la connexion en cas de succès
+   */
   async function handleRegister() {
     if (!email || !password || !confirmPassword) {
       Alert.alert("Erreur", "Tous les champs sont requis");
@@ -54,7 +59,7 @@ export default function RegisterScreen() {
     }
   }
 
-  // Utiliser soit l'état global de chargement, soit l'état local du formulaire
+  // État combiné pour afficher le loader pendant le chargement
   const showLoader = isLoading || formSubmitting;
 
   return (

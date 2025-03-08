@@ -18,6 +18,7 @@ import { RootStackParamList } from "@/app/navigation/AppNavigator";
 import { getFavoritesByUserId, removeFromFavorites } from "@/app/services/api";
 import { Dish } from "@/app/types";
 
+// Type pour la navigation spécifique à l'écran des favoris
 type FavoritesNavigationProp = StackNavigationProp<
   RootStackParamList,
   "Favorites"
@@ -30,6 +31,9 @@ export default function FavoritesScreen() {
   const navigation = useNavigation<FavoritesNavigationProp>();
   const { user } = useAuth();
 
+  /**
+   * Charge les plats favoris de l'utilisateur
+   */
   const loadFavorites = useCallback(async () => {
     if (!user) return;
 
@@ -46,22 +50,27 @@ export default function FavoritesScreen() {
     }
   }, [user]);
 
+  // Charge les favoris au montage du composant
   useEffect(() => {
     loadFavorites();
   }, [loadFavorites]);
 
+  // Actualise la liste des favoris
   const handleRefresh = () => {
     setRefreshing(true);
     loadFavorites();
   };
 
+  /**
+   * Supprime un plat des favoris et met à jour la liste
+   */
   const handleRemoveFavorite = async (dishId: string) => {
     if (!user) return;
 
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       await removeFromFavorites(user.id, dishId);
-      // Mettre à jour la liste locale des favoris
+      // Mise à jour optimiste de la liste locale
       setFavorites((currentFavorites) =>
         currentFavorites.filter((dish) => dish.id !== dishId)
       );
@@ -71,6 +80,9 @@ export default function FavoritesScreen() {
     }
   };
 
+  /**
+   * Rendu d'un élément de la liste des favoris
+   */
   const renderItem = ({ item }: { item: Dish }) => (
     <TouchableOpacity
       style={styles.card}
@@ -97,6 +109,9 @@ export default function FavoritesScreen() {
     </TouchableOpacity>
   );
 
+  /**
+   * Affichage lorsque la liste des favoris est vide
+   */
   const EmptyListComponent = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyText}>
