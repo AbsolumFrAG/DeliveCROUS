@@ -80,5 +80,75 @@
       "price": 8,
       "image": "https://picsum.photos/200?random=6"
     }
+  ],
+  "orders": [
+    {
+      "id": "8964",
+      "userId": "1",
+      "dishes": [
+        {
+          "id": "2"
+        }
+      ],
+      "totalAmount": 7,
+      "status": "en cours",
+      "deliveryLocation": "123 rue des plats",
+      "createdAt": "2024-03-08T12:00:00.000Z",
+      "updatedAt": "2024-03-08T12:00:00.000Z"
+    },
+    {
+      "id": "5ae1",
+      "userId": "1234",
+      "dishes": [
+        {
+          "id": "1",
+          "name": "Poulet rôti",
+          "description": "Délicieux poulet rôti aux herbes.",
+          "price": 12.5,
+          "image": "https://picsum.photos/200?random=1"
+        }
+      ],
+      "totalAmount": 12.5,
+      "status": "en cours",
+      "deliveryLocation": "Salle TP1",
+      "createdAt": "2025-03-08T12:39:39.106Z",
+      "updatedAt": "2025-03-08T12:39:39.106Z"
+    },
+    {
+      "id": "1b3d",
+      "userId": "1234",
+      "dishes": [
+        {
+          "id": "1",
+          "name": "Poulet rôti",
+          "description": "Délicieux poulet rôti aux herbes.",
+          "price": 12.5,
+          "image": "https://picsum.photos/200?random=1"
+        }
+      ],
+      "totalAmount": 12.5,
+      "status": "en cours",
+      "deliveryLocation": "Salle TP2",
+      "createdAt": "2025-03-08T12:40:27.830Z",
+      "updatedAt": "2025-03-08T12:40:27.830Z"
+    },
+    {
+      "id": "1f4e",
+      "userId": "1234",
+      "dishes": [
+        {
+          "id": "6",
+          "name": "Tacos au Poulet",
+          "description": "Tacos garnis de poulet épicé, légumes frais et sauce au yaourt.",
+          "price": 8,
+          "image": "https://picsum.photos/200?random=6"
+        }
+      ],
+      "totalAmount": 8,
+      "status": "en cours",
+      "deliveryLocation": "Salle TP1",
+      "createdAt": "2025-03-08T12:47:24.525Z",
+      "updatedAt": "2025-03-08T12:47:24.525Z"
+    }
   ]
 }
