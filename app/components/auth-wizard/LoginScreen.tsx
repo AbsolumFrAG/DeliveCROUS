@@ -8,7 +8,6 @@ import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Image,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -72,11 +71,6 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.logoContainer}>
-            <Image
-              source={require("@/assets/images/icon.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
             <Text style={styles.appName}>DeliveCROUS</Text>
           </View>
 
