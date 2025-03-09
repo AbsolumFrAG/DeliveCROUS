@@ -13,11 +13,10 @@ import OrderScreen from "../components/order/OrderScreen";
 import useAuth from "../context/AuthContext";
 import useCart from "../context/CartContext";
 
-// Define all routes at the root level
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  MainTabs: { screen?: string }; // Allow passing a screen parameter to MainTabs
+  MainTabs: { screen?: string };
   DishDetail: { dishId: string };
   Order: { dishId?: string; fromCart?: boolean };
   OrderDetail: { orderId: string };
@@ -27,8 +26,8 @@ export type RootStackParamList = {
 // Define tab routes separately
 export type TabParamList = {
   DishListTab: undefined;
-  FavoritesTab: undefined; // Renamed to avoid confusion
-  OrderHistoryTab: undefined; // Renamed to avoid confusion
+  FavoritesTab: undefined;
+  OrderHistoryTab: undefined;
   CartTab: undefined;
 };
 
